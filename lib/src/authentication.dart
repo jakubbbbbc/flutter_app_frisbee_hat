@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gtk_flutter/navigation_bar.dart';
 
 import 'widgets.dart';
 
@@ -47,64 +48,84 @@ class Authentication extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (loginState) {
       case ApplicationLoginState.loggedOut:
-        return Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 24, bottom: 8),
-              child: StyledButton(
-                onPressed: () {
-                  startLoginFlow();
-                },
-                child: const Text('RSVP'),
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Login page'),
+          ),
+          body: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 24, bottom: 8),
+                child: StyledButton(
+                  onPressed: () {
+                    startLoginFlow();
+                  },
+                  child: const Text('RSVP'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       case ApplicationLoginState.emailAddress:
-        return EmailForm(
-            callback: (email) => verifyEmail(
-                email, (e) => _showErrorDialog(context, 'Invalid email', e)));
+        return Scaffold(
+            appBar: AppBar(
+              title: const Text('Login page'),
+            ),
+            body: EmailForm(
+                callback: (email) => verifyEmail(email,
+                    (e) => _showErrorDialog(context, 'Invalid email', e))));
       case ApplicationLoginState.password:
-        return PasswordForm(
-          email: email!,
-          login: (email, password) {
-            signInWithEmailAndPassword(email, password,
-                (e) => _showErrorDialog(context, 'Failed to sign in', e));
-          },
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Login page'),
+          ),
+          body: PasswordForm(
+            email: email!,
+            login: (email, password) {
+              signInWithEmailAndPassword(email, password,
+                  (e) => _showErrorDialog(context, 'Failed to sign in', e));
+            },
+          ),
         );
       case ApplicationLoginState.register:
-        return RegisterForm(
-          email: email!,
-          cancel: () {
-            cancelRegistration();
-          },
-          registerAccount: (
-            email,
-            displayName,
-            password,
-          ) {
-            registerAccount(
-                email,
-                displayName,
-                password,
-                (e) =>
-                    _showErrorDialog(context, 'Failed to create account', e));
-          },
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Login page'),
+          ),
+          body: RegisterForm(
+            email: email!,
+            cancel: () {
+              cancelRegistration();
+            },
+            registerAccount: (
+              email,
+              displayName,
+              password,
+            ) {
+              registerAccount(
+                  email,
+                  displayName,
+                  password,
+                  (e) =>
+                      _showErrorDialog(context, 'Failed to create account', e));
+            },
+          ),
         );
       case ApplicationLoginState.loggedIn:
-        return Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 24, bottom: 8),
-              child: StyledButton(
-                onPressed: () {
-                  signOut();
-                },
-                child: const Text('LOGOUT'),
-              ),
-            ),
-          ],
-        );
+        return MyNavigationBar();
+        // return Row(
+        //   children: [
+        //     Padding(
+        //       padding: const EdgeInsets.only(left: 24, bottom: 8),
+        //       child: StyledButton(
+        //         onPressed: () {
+        //           signOut();
+        //         },
+        //         child: const Text('LOGOUT'),
+        //       ),
+        //     ),
+        //   ],
+        // );
       default:
         return Row(
           children: const [
@@ -152,7 +173,9 @@ class Authentication extends StatelessWidget {
 
 class EmailForm extends StatefulWidget {
   const EmailForm({required this.callback});
+
   final void Function(String email) callback;
+
   @override
   _EmailFormState createState() => _EmailFormState();
 }
@@ -220,10 +243,12 @@ class RegisterForm extends StatefulWidget {
     required this.cancel,
     required this.email,
   });
+
   final String email;
   final void Function(String email, String displayName, String password)
       registerAccount;
   final void Function() cancel;
+
   @override
   _RegisterFormState createState() => _RegisterFormState();
 }
@@ -338,8 +363,10 @@ class PasswordForm extends StatefulWidget {
     required this.login,
     required this.email,
   });
+
   final String email;
   final void Function(String email, String password) login;
+
   @override
   _PasswordFormState createState() => _PasswordFormState();
 }
