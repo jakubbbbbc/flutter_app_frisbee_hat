@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // new
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gtk_flutter/info.dart';
 import 'package:gtk_flutter/players_page.dart';
+import 'package:gtk_flutter/teams_page.dart';
 import 'package:provider/provider.dart'; // new
 
 import 'firebase_options.dart'; // new
@@ -183,17 +185,34 @@ class ApplicationState extends ChangeNotifier {
             .listen((snapshot) {
           _playersList = [];
           for (final document in snapshot.docs) {
+            String pName = document.data()['name'] as String;
+            String pHatTeam = document.data()['hatTeam'] as String;
             _playersList.add(
               Player(
-                name: document.data()['name'] as String,
+                name: pName,
                 nickname: document.data()['nickname'] as String,
-                hatTeam: document.data()['hatTeam'] as String,
+                hatTeam: pHatTeam,
                 homeTeam: document.data()['homeTeam'] as String,
                 city: document.data()['city'] as String,
                 position: document.data()['position'] as String,
                 bio: document.data()['bio'] as String,
               ),
             );
+            print("${pName}, ${pHatTeam}");
+            if (_teamsMap.containsKey(pHatTeam)) {
+              // _teamsMap[document.data()['hatTeam'] as String];
+              print('already contained');
+              _teamsMap[pHatTeam].teamPlayers.add(_playersList.last);
+              // print(_teamsMap[pHatTeam].teamPlayers);
+              null;
+            } else {
+              print('not yet');
+              print(teamColors[pHatTeam]);
+              _teamsMap[pHatTeam] = Team(
+                  name: pHatTeam,
+                  color: teamColors[pHatTeam]!,
+                  teamPlayers: [_playersList.last]);
+            }
           }
           notifyListeners();
         });
@@ -255,19 +274,28 @@ class ApplicationState extends ChangeNotifier {
   // Add from here
   StreamSubscription<QuerySnapshot>? _guestBookSubscription;
   List<GuestBookMessage> _guestBookMessages = [];
+
   List<GuestBookMessage> get guestBookMessages => _guestBookMessages;
+
   // to here.
 
   StreamSubscription<QuerySnapshot>? _playersSubscription;
   List<Player> _playersList = [];
+
   List<Player> get playersList => _playersList;
+  var _teamsMap = new Map();
+
+  get teamsList => _teamsMap;
 
   int _attendees = 0;
+
   int get attendees => _attendees;
 
   Attending _attending = Attending.unknown;
   StreamSubscription<DocumentSnapshot>? _attendingSubscription;
+
   Attending get attending => _attending;
+
   set attending(Attending attending) {
     final userDoc = FirebaseFirestore.instance
         .collection('attendees')
@@ -340,7 +368,6 @@ class ApplicationState extends ChangeNotifier {
   void signOut() {
     FirebaseAuth.instance.signOut();
   }
-
 }
 
 class GuestBookMessage {
@@ -426,6 +453,7 @@ class _GuestBookState extends State<GuestBook> {
 
 class YesNoSelection extends StatelessWidget {
   const YesNoSelection({required this.state, required this.onSelection});
+
   final Attending state;
   final void Function(Attending selection) onSelection;
 
@@ -488,3 +516,15 @@ class YesNoSelection extends StatelessWidget {
     }
   }
 }
+
+final teamColors = {
+  'Bazyliszki': Colors.blue,
+  'Smaugi': Colors.yellow,
+  'Rogogony': Colors.red,
+};
+
+final colorNames = {
+  Colors.blue: 'niebieski',
+  Colors.yellow: 'żółty',
+  Colors.red: 'czerwony',
+};
