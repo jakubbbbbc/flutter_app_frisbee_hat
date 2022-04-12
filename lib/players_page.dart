@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gtk_flutter/src/authentication.dart';
 import 'package:gtk_flutter/teams_page.dart';
@@ -67,7 +66,7 @@ class _PlayersPageState extends State<PlayersPage> {
 }
 
 class Player {
-  const Player({
+  Player({
     required this.name,
     required this.nickname,
     required this.hatTeam,
@@ -75,16 +74,19 @@ class Player {
     required this.city,
     required this.position,
     required this.bio,
-    // required this.city,
+    required this.email,
+    required this.loggedIn,
   });
 
   final String name;
-  final String nickname;
+  String nickname;
   final String hatTeam;
-  final String homeTeam;
-  final String city;
-  final String position;
-  final String bio;
+  String homeTeam;
+  String city;
+  String position;
+  String bio;
+  final String email;
+  final bool loggedIn;
 }
 
 class PlayersList extends StatefulWidget {
@@ -166,9 +168,33 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Zawodnik'),
-      ),
+      appBar: widget.player.loggedIn
+          ? AppBar(
+              title: const Text('Zawodnik'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProfileEditPage(
+                                  player: widget.player,
+                                )));
+                    setState(() {});
+                  },
+                  style: ButtonStyle(
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    padding:
+                        MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+                  ),
+                  child: Icon(Icons.edit),
+                ),
+              ],
+            )
+          : AppBar(
+              title: const Text('Zawodnik'),
+            ),
       body: SingleChildScrollView(
         child: Consumer<ApplicationState>(
           builder: (context, appState, _) => Column(
@@ -369,6 +395,247 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
+            ],
+            // to here.
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileEditPage extends StatefulWidget {
+  const ProfileEditPage({Key? key, required this.player}) : super(key: key);
+  final Player player;
+
+  @override
+  State<ProfileEditPage> createState() => _ProfileEditPageState();
+}
+
+class _ProfileEditPageState extends State<ProfileEditPage> {
+  final _nicknameController = TextEditingController();
+  final _homeTeamController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _positionController = TextEditingController();
+  final _bioController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _nicknameController.text = widget.player.nickname;
+    _homeTeamController.text = widget.player.homeTeam;
+    _cityController.text = widget.player.city;
+    _positionController.text = widget.player.position;
+    _bioController.text = widget.player.bio;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edycja profilu'),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.close),
+        ),
+        actions: <Widget>[
+          Consumer<ApplicationState>(
+            builder: (context, appState, _) => TextButton(
+              onPressed: () async {
+                // if (widget.player.nickname != _nicknameController.text)
+                await appState.updatePlayerInfo(
+                    _nicknameController.text,
+                    _homeTeamController.text,
+                    _cityController.text,
+                    _positionController.text,
+                    _bioController.text);
+                widget.player.nickname = _nicknameController.text;
+                widget.player.homeTeam = _homeTeamController.text;
+                widget.player.city = _cityController.text;
+                widget.player.position = _positionController.text;
+                widget.player.bio = _bioController.text;
+                Navigator.pop(context);
+              },
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              ),
+              child: Icon(Icons.check),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Consumer<ApplicationState>(
+          builder: (context, appState, _) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 24, bottom: 8),
+                    child: StyledButton(
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut();
+                        Navigator.popUntil(context, ModalRoute.withName("/"));
+                      },
+                      child: const Text('LOGOUT'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Header('Podstawowe informacje'),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TextFormField(
+                        controller: _nicknameController,
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          // hintText: 'Drużyna domowa',
+                          labelText: 'Pseudonim',
+                          labelStyle: TextStyle(color: Colors.black),
+                          fillColor: Colors.white,
+                          filled: true,
+                          // focusColor: Colors.yellow,
+                          // hoverColor: Colors.purple,
+                        ),
+                        // validator: (value) {
+                        //   if (value!.isEmpty) {
+                        //     return 'Enter your account name';
+                        //   }
+                        //   return null;
+                        // },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TextFormField(
+                        controller: _homeTeamController,
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          labelText: 'Drużyna domowa',
+                          labelStyle: TextStyle(color: Colors.black),
+                          fillColor: Colors.white,
+                          filled: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TextFormField(
+                        controller: _cityController,
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          labelText: 'Miasto',
+                          labelStyle: TextStyle(color: Colors.black),
+                          fillColor: Colors.white,
+                          filled: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TextFormField(
+                        controller: _positionController,
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          labelText: 'Pozycja',
+                          labelStyle: TextStyle(color: Colors.black),
+                          fillColor: Colors.white,
+                          filled: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TextFormField(
+                        controller: _bioController,
+                        minLines: 3,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.green.shade800,
+                              width: 3,
+                            ),
+                          ),
+                          labelText: 'Bio',
+                          hintText: 'Powiedz nam coś o sobie',
+                          labelStyle: TextStyle(color: Colors.black),
+                          fillColor: Colors.white,
+                          filled: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
             ],
             // to here.
           ),

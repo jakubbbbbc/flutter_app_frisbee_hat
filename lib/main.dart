@@ -196,18 +196,22 @@ class ApplicationState extends ChangeNotifier {
                 city: document.data()['city'] as String,
                 position: document.data()['position'] as String,
                 bio: document.data()['bio'] as String,
+                email: document.data()['email'] as String,
+                loggedIn: FirebaseAuth.instance.currentUser!.email ==
+                        document.data()['email'] as String
+                    ? true
+                    : false,
               ),
             );
-            print("${pName}, ${pHatTeam}");
+            if (FirebaseAuth.instance.currentUser!.email ==
+                document.data()['email'] as String) {
+              _currentPlayerDocId = document.id;
+            }
+            // print("${pName}, ${pHatTeam}");
             if (_teamsMap.containsKey(pHatTeam)) {
-              // _teamsMap[document.data()['hatTeam'] as String];
-              print('already contained');
               _teamsMap[pHatTeam].teamPlayers.add(_playersList.last);
-              // print(_teamsMap[pHatTeam].teamPlayers);
               null;
             } else {
-              print('not yet');
-              print(teamColors[pHatTeam]);
               _teamsMap[pHatTeam] = Team(
                   name: pHatTeam,
                   color: teamColors[pHatTeam]!,
@@ -262,6 +266,24 @@ class ApplicationState extends ChangeNotifier {
     });
   }
 
+  Future<void> updatePlayerInfo(String nickname, String homeTeam, String city,
+      String position, String bio) {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    return FirebaseFirestore.instance
+        .collection('players')
+        .doc(_currentPlayerDocId)
+        .update(<String, dynamic>{
+      'nickname': nickname,
+      'homeTeam': homeTeam,
+      'city': city,
+      'position': position,
+      'bio': bio,
+    });
+  }
+
   // To here
 
   ApplicationLoginState _loginState = ApplicationLoginState.loggedOut;
@@ -286,6 +308,8 @@ class ApplicationState extends ChangeNotifier {
   var _teamsMap = new Map();
 
   get teamsList => _teamsMap;
+
+  String _currentPlayerDocId = '';
 
   int _attendees = 0;
 
