@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gtk_flutter/navigation_bar.dart';
 
@@ -453,4 +454,36 @@ class _PasswordFormState extends State<PasswordForm> {
       ],
     );
   }
+}
+
+showLogoutDialog(BuildContext context){
+  Widget cancelButton = TextButton(
+    child: Text("Cofnij"),
+    onPressed:  () {
+      Navigator.pop(context);
+    },
+  );
+  Widget continueButton = TextButton(
+    child: Text("Wyloguj"),
+    onPressed:  () {
+      FirebaseAuth.instance.signOut();
+      Navigator.popUntil(context, ModalRoute.withName("/"));
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Potwierdzenie wylogowania"),
+    content: Text("Czy na pewno chcesz się wylogować?"),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

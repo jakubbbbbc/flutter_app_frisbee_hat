@@ -175,8 +175,19 @@ class _TeamPageState extends State<TeamPage> {
                           Container(
                             margin: const EdgeInsets.only(right: 10.0),
                             child: CircleAvatar(
-                                backgroundColor: widget.team.color,
-                                child: Text(player.name[0])),
+                              backgroundColor: widget.team.color,
+                              child: player.pic != null
+                                  ? SizedBox(
+                                      width: 35,
+                                      height: 35,
+                                      child: ClipOval(
+                                          child: Image.memory(
+                                        player.pic!,
+                                        fit: BoxFit.cover,
+                                      )),
+                                    )
+                                  : Text(player.name[0]),
+                            ),
                           ),
                           Expanded(
                             child: Text(player.name,

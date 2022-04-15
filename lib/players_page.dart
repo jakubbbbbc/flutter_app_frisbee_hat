@@ -1,7 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:gtk_flutter/src/authentication.dart';
 import 'package:gtk_flutter/teams_page.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'src/widgets.dart';
 
@@ -76,6 +82,9 @@ class Player {
     required this.bio,
     required this.email,
     required this.loggedIn,
+    required this.uid,
+    this.pic,
+    required this.hasPic,
   });
 
   final String name;
@@ -87,6 +96,26 @@ class Player {
   String bio;
   final String email;
   final bool loggedIn;
+  final String uid;
+  Uint8List? pic;
+  bool hasPic;
+
+  Future<Uint8List?> downloadImage(String fname) async {
+    // Create a storage reference from our app
+    final storageRef =
+        FirebaseStorage.instance.ref().child('profile_pics').child(fname);
+
+    try {
+      const oneMegabyte = 1024 * 1024 * 4;
+      final Uint8List? data = await storageRef.getData(oneMegabyte);
+      // return MemoryImage(data!) as File;
+      // return MemoryImage(data!);
+      return data!;
+    } on FirebaseException catch (e) {
+      print(e);
+    }
+    return null;
+  }
 }
 
 class PlayersList extends StatefulWidget {
@@ -126,9 +155,21 @@ class _PlayersListState extends State<PlayersList> {
                     builder: (context, appState, _) => Container(
                       margin: const EdgeInsets.only(right: 10.0),
                       child: CircleAvatar(
-                          backgroundColor:
-                              appState.teamsList[player.hatTeam].color,
-                          child: Text(player.name[0])),
+                        minRadius: 20,
+                        backgroundColor:
+                            appState.teamsList[player.hatTeam].color,
+                        child: player.pic != null
+                            ? SizedBox(
+                                width: 35,
+                                height: 35,
+                                child: ClipOval(
+                                    child: Image.memory(
+                                  player.pic!,
+                                  fit: BoxFit.cover,
+                                )),
+                              )
+                            : Text(player.name[0]),
+                      ),
                     ),
                   ),
                   Expanded(
@@ -172,7 +213,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ? AppBar(
               title: const Text('Zawodnik'),
               actions: <Widget>[
-                TextButton(
+                IconButton(
                   onPressed: () async {
                     await Navigator.push(
                         context,
@@ -182,13 +223,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                 )));
                     setState(() {});
                   },
-                  style: ButtonStyle(
-                    foregroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white),
-                    padding:
-                        MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
-                  ),
-                  child: Icon(Icons.edit),
+                  color: Colors.white,
+                  // padding: EdgeInsets.only(right: 5),
+                  icon: Icon(Icons.edit),
+                ),
+                IconButton(
+                  onPressed: () {
+                    showLogoutDialog(context);
+                  },
+                  color: Colors.white,
+                  padding: EdgeInsets.only(right: 5),
+                  icon: Icon(Icons.logout),
                 ),
               ],
             )
@@ -201,10 +246,31 @@ class _ProfilePageState extends State<ProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
+              // Center(
+              //   child: ProfilePicture(
+              //     name: widget.player.name,
+              //     radius: 31,
+              //     fontsize: 31,
+              //     img:
+              //         'http://bestprofilepix.com/wp-content/uploads/2014/03/sad-and-alone-boys-facebook-profile-pictures.jpg',
+              //     // role: 'test',
+              //     // tooltip: true,
+              //   ),
+              // ),
               CircleAvatar(
                 backgroundColor:
                     appState.teamsList[widget.player.hatTeam].color,
-                child: Text(widget.player.name[0]),
+                child: widget.player.pic != null
+                    ? SizedBox(
+                        width: 70,
+                        height: 70,
+                        child: ClipOval(
+                            child: Image.memory(
+                          widget.player.pic!,
+                          fit: BoxFit.cover,
+                        )),
+                      )
+                    : Text(widget.player.name[0]),
                 minRadius: 40,
               ),
               const SizedBox(height: 10),
@@ -429,6 +495,109 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     _bioController.text = widget.player.bio;
   }
 
+  XFile? imageFile = null;
+
+  Future<void> _showChoiceDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              "Źródło zdjęcia",
+              // style: TextStyle(color: Colors.blue),
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: [
+                  Divider(
+                    height: 1,
+                    // color: Colors.blue,
+                  ),
+                  ListTile(
+                    onTap: () {
+                      _openGallery(context);
+                    },
+                    title: Text("Galeria"),
+                    leading: Icon(
+                      Icons.account_box,
+                      // color: Colors.blue,
+                    ),
+                  ),
+                  Divider(
+                    height: 1,
+                    // color: Colors.blue,
+                  ),
+                  ListTile(
+                    onTap: () {
+                      _openCamera(context);
+                    },
+                    title: Text("Aparat"),
+                    leading: Icon(
+                      Icons.camera,
+                      // color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  void _openGallery(BuildContext context) async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    setState(() {
+      imageFile = pickedFile!;
+    });
+
+    Navigator.pop(context);
+    // Navigator.pop(context);
+  }
+
+  void _openCamera(BuildContext context) async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+    );
+    setState(() {
+      imageFile = pickedFile!;
+    });
+    Navigator.pop(context);
+  }
+
+  Future<String?> _uploadImage(File img, String fname) async {
+    final storage = FirebaseStorage.instance;
+    final storageRef = storage.ref().child('profile_pics').child(fname);
+    // storage.FirebaseStorage.instance.ref(path);
+    try {
+      await storageRef.putFile(img);
+    } on FirebaseException catch (e) {
+      print(e);
+    }
+    return await storageRef.getDownloadURL();
+  }
+
+  // UploadTask uploadString() {
+  //   const String putStringText =
+  //       'This upload has been generated using the putString method! Check the metadata too!';
+  //
+  //   // Create a Reference to the file
+  //   Reference ref = FirebaseStorage.instance
+  //       .ref()
+  //       .child('flutter-tests')
+  //       .child('/put-string-example.txt');
+  //
+  //   // Start upload of putString
+  //   return ref.putString(
+  //     putStringText,
+  //     metadata: SettableMetadata(
+  //       contentLanguage: 'en',
+  //       customMetadata: <String, String>{'example': 'putString'},
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -471,20 +640,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           builder: (context, appState, _) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24, bottom: 8),
-                    child: StyledButton(
-                      onPressed: () {
-                        FirebaseAuth.instance.signOut();
-                        Navigator.popUntil(context, ModalRoute.withName("/"));
-                      },
-                      child: const Text('LOGOUT'),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 20),
               Header('Podstawowe informacje'),
               Container(
@@ -636,6 +791,33 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   ],
                 ),
               ),
+              const SizedBox(height: 8),
+              Center(
+                child: OutlinedButton(
+                    onPressed: () async {
+                      await _showChoiceDialog(context);
+                      String? url = await _uploadImage(
+                          File(imageFile!.path), widget.player.uid);
+                      widget.player.pic =
+                          await widget.player.downloadImage(widget.player.uid);
+                      widget.player.hasPic = true;
+                      FirebaseFirestore.instance
+                          .collection('players')
+                          .doc(widget.player.uid)
+                          .update(<String, dynamic>{
+                        'hasPic': true,
+                      });
+                      Navigator.pop(context);
+                      // print(widget.player.pic);
+                    },
+                    child: const Text('Wybierz zdjęcie profilowe')),
+              ),
+              // Card(
+              //   child: (widget.player.pic == null)
+              //       ? Text("Choose Image")
+              //       // : Image.file(File(imageFile!.path)),
+              //       : Image.memory(widget.player.pic!),
+              // ),
             ],
             // to here.
           ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // new
@@ -182,8 +183,9 @@ class ApplicationState extends ChangeNotifier {
             .collection('players')
             .orderBy('name', descending: false)
             .snapshots()
-            .listen((snapshot) {
+            .listen((snapshot) async {
           _playersList = [];
+          _teamsMap = new Map();
           for (final document in snapshot.docs) {
             String pName = document.data()['name'] as String;
             String pHatTeam = document.data()['hatTeam'] as String;
@@ -201,16 +203,22 @@ class ApplicationState extends ChangeNotifier {
                         document.data()['email'] as String
                     ? true
                     : false,
+                uid: document.id,
+                hasPic: document.data()['hasPic'],
               ),
             );
+            if (_playersList.last.hasPic) {
+              _playersList.last.pic = await _playersList.last
+                  .downloadImage(_playersList.last.uid);
+            }
             if (FirebaseAuth.instance.currentUser!.email ==
                 document.data()['email'] as String) {
               _currentPlayerDocId = document.id;
+              _currentPlayer = _playersList.last;
             }
-            // print("${pName}, ${pHatTeam}");
+            // print("${pName}, ${_playersList.last.loggedIn}, ${_playersList.last.hasPic}");
             if (_teamsMap.containsKey(pHatTeam)) {
               _teamsMap[pHatTeam].teamPlayers.add(_playersList.last);
-              null;
             } else {
               _teamsMap[pHatTeam] = Team(
                   name: pHatTeam,
@@ -309,6 +317,21 @@ class ApplicationState extends ChangeNotifier {
 
   get teamsList => _teamsMap;
 
+  Player _currentPlayer = Player(
+    name: '',
+    position: '',
+    nickname: '',
+    homeTeam: '',
+    email: '',
+    hatTeam: '',
+    loggedIn: false,
+    bio: '',
+    city: '',
+    uid: '',
+    hasPic: false,
+  );
+
+  get currentPlayer => _currentPlayer;
   String _currentPlayerDocId = '';
 
   int _attendees = 0;
