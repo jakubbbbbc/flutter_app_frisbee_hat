@@ -4,9 +4,9 @@ import 'package:gtk_flutter/info.dart';
 import 'package:gtk_flutter/plan_page.dart';
 import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/teams_page.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
-import 'main.dart';
+// import 'main.dart';
 
 class MyNavigationBar extends StatefulWidget {
   const MyNavigationBar({Key? key}) : super(key: key);
