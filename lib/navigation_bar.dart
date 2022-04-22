@@ -3,7 +3,12 @@ import 'package:gtk_flutter/home.dart';
 import 'package:gtk_flutter/info.dart';
 import 'package:gtk_flutter/plan_page.dart';
 import 'package:gtk_flutter/players_page.dart';
+import 'package:gtk_flutter/src/widgets.dart';
 import 'package:gtk_flutter/teams_page.dart';
+import 'package:provider/provider.dart';
+
+import 'config.dart';
+import 'main.dart';
 // import 'package:provider/provider.dart';
 
 // import 'main.dart';
@@ -33,27 +38,31 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-                body: _children[_selectedIndex],
-                bottomNavigationBar: BottomNavigationBar(
-                  backgroundColor: Colors.blueGrey[100],
-                  unselectedItemColor: Colors.blueGrey,
-                  selectedItemColor: Colors.blue,
-                  items: const <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.home), label: 'Home'),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.calendar_month), label: 'Plan'),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.person), label: 'Zawodnicy'),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.people), label: 'Drużyny'),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.newspaper), label: 'Czytelnia'),
-                  ],
-                  currentIndex: _selectedIndex,
-                  onTap: _onItemTapped,
+    return Consumer<ApplicationState>(
+      builder: (context, appState, _) => appState.currentPlayer.uid == ''
+          ? loadingIndicator
+          : Scaffold(
+                  body: _children[_selectedIndex],
+                  bottomNavigationBar: BottomNavigationBar(
+                    backgroundColor: Colors.blueGrey[100],
+                    unselectedItemColor: Colors.blueGrey,
+                    selectedItemColor: themeColors['main']!,
+                    items: const <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home), label: 'Home'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.calendar_month), label: 'Plan'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.person), label: 'Zawodnicy'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.people), label: 'Drużyny'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.newspaper), label: 'Czytelnia'),
+                    ],
+                    currentIndex: _selectedIndex,
+                    onTap: _onItemTapped,
+                  ),
                 ),
-              );
+    );
   }
 }

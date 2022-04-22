@@ -304,7 +304,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Header('Podstawowe informacje'),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.green,
+                        color: themeColors['main']!,
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       margin: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -456,7 +456,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (widget.player.bio != "")
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.green,
+                          color: themeColors['main']!,
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         margin: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -583,7 +583,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     final storageRef = storage.ref().child('profile_pics').child(fname);
     // storage.FirebaseStorage.instance.ref(path);
     final fileSize = await img.length();
-    if (fileSize <= configMaxImageSize)
+    if (fileSize <= maxImageSize)
       try {
         await storageRef.putFile(img);
         return 'success';
@@ -624,7 +624,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         title: const Text('Edycja profilu'),
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            _isLoading ? null : Navigator.pop(context);
           },
           icon: Icon(Icons.close),
         ),
@@ -632,19 +632,23 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           Consumer<ApplicationState>(
             builder: (context, appState, _) => TextButton(
               onPressed: () async {
-                // if (widget.player.nickname != _nicknameController.text)
-                await appState.updatePlayerInfo(
-                    _nicknameController.text,
-                    _homeTeamController.text,
-                    _cityController.text,
-                    _positionController.text,
-                    _bioController.text);
-                widget.player.nickname = _nicknameController.text;
-                widget.player.homeTeam = _homeTeamController.text;
-                widget.player.city = _cityController.text;
-                widget.player.position = _positionController.text;
-                widget.player.bio = _bioController.text;
-                Navigator.pop(context);
+                if (_isLoading)
+                  null;
+                else {
+                  // if (widget.player.nickname != _nicknameController.text)
+                  await appState.updatePlayerInfo(
+                      _nicknameController.text,
+                      _homeTeamController.text,
+                      _cityController.text,
+                      _positionController.text,
+                      _bioController.text);
+                  widget.player.nickname = _nicknameController.text;
+                  widget.player.homeTeam = _homeTeamController.text;
+                  widget.player.city = _cityController.text;
+                  widget.player.position = _positionController.text;
+                  widget.player.bio = _bioController.text;
+                  Navigator.pop(context);
+                }
               },
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
@@ -665,7 +669,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   Header('Podstawowe informacje'),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: themeColors['main']!,
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     margin: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -679,13 +683,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             decoration: InputDecoration(
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
@@ -713,13 +717,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             decoration: InputDecoration(
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
@@ -738,13 +742,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             decoration: InputDecoration(
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
@@ -763,13 +767,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             decoration: InputDecoration(
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
@@ -790,13 +794,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             decoration: InputDecoration(
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.green.shade800,
+                                  color: themeColors['dark']!,
                                   width: 3,
                                 ),
                               ),
@@ -854,9 +858,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
             ),
           ),
           new Align(
-            child: _isLoading
-                ? loadingIndicator
-                : new Container(),
+            child: _isLoading ? loadingIndicator : new Container(),
             alignment: FractionalOffset.center,
           ),
         ],
@@ -930,7 +932,7 @@ showImageAlertDialog(BuildContext context) {
   AlertDialog alert = AlertDialog(
     title: Text("Zbyt duży rozmiar zdjęcia"),
     content: Text(
-        "Rozmiar zdjęcia nie może przekroczyć ${configMaxImageSize / 1000000} MB."),
+        "Rozmiar zdjęcia nie może przekroczyć ${maxImageSize / 1000000} MB."),
     actions: [
       cancelButton,
       // continueButton,

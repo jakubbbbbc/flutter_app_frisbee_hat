@@ -4,6 +4,7 @@ import 'package:gtk_flutter/src/authentication.dart';
 import 'package:gtk_flutter/src/widgets.dart';
 import 'package:provider/provider.dart';
 
+import 'config.dart';
 import 'main.dart';
 
 class TeamsPage extends StatefulWidget {
