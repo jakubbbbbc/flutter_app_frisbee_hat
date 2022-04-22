@@ -3,13 +3,17 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+
+// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_profile_picture/flutter_profile_picture.dart';
+
+// import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:gtk_flutter/src/authentication.dart';
 import 'package:gtk_flutter/teams_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'src/widgets.dart';
+import 'config.dart';
 
 import 'main.dart';
 
@@ -208,265 +212,273 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: widget.player.loggedIn
-          ? AppBar(
-              title: const Text('Zawodnik'),
-              actions: <Widget>[
-                IconButton(
-                  onPressed: () async {
-                    await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ProfileEditPage(
-                                  player: widget.player,
-                                )));
-                    setState(() {});
-                  },
-                  color: Colors.white,
-                  // padding: EdgeInsets.only(right: 5),
-                  icon: Icon(Icons.edit),
-                ),
-                IconButton(
-                  onPressed: () {
-                    showLogoutDialog(context);
-                  },
-                  color: Colors.white,
-                  padding: EdgeInsets.only(right: 5),
-                  icon: Icon(Icons.logout),
-                ),
-              ],
-            )
-          : AppBar(
-              title: const Text('Zawodnik'),
-            ),
-      body: SingleChildScrollView(
-        child: Consumer<ApplicationState>(
-          builder: (context, appState, _) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              // Center(
-              //   child: ProfilePicture(
-              //     name: widget.player.name,
-              //     radius: 31,
-              //     fontsize: 31,
-              //     img:
-              //         'http://bestprofilepix.com/wp-content/uploads/2014/03/sad-and-alone-boys-facebook-profile-pictures.jpg',
-              //     // role: 'test',
-              //     // tooltip: true,
-              //   ),
-              // ),
-              CircleAvatar(
-                backgroundColor:
-                    appState.teamsList[widget.player.hatTeam].color,
-                child: widget.player.pic != null
-                    ? SizedBox(
-                        width: 70,
-                        height: 70,
-                        child: ClipOval(
-                            child: Image.memory(
-                          widget.player.pic!,
-                          fit: BoxFit.cover,
-                        )),
-                      )
-                    : Text(widget.player.name[0]),
-                minRadius: 40,
-              ),
-              const SizedBox(height: 10),
-              Center(
-                child: Text(
-                  widget.player.name,
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Center(
-                child: widget.player.nickname != ""
-                    ? Text(
-                        '\"${widget.player.nickname}\"',
-                        style: Theme.of(context).textTheme.headline6,
-                      )
-                    : null,
-              ),
-              const SizedBox(height: 20),
-              const Divider(
-                height: 8,
-                thickness: 1,
-                indent: 8,
-                endIndent: 8,
-                color: Colors.grey,
-              ),
-              Header('Podstawowe informacje'),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                margin: const EdgeInsets.symmetric(horizontal: 10.0),
+    return Consumer<ApplicationState>(
+        builder: (context, appState, _) => Scaffold(
+              appBar: widget.player.loggedIn
+                  ? AppBar(
+                      title: const Text('Zawodnik'),
+                      actions: <Widget>[
+                        IconButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ProfileEditPage(
+                                          player: widget.player,
+                                        )));
+                            setState(() {});
+                          },
+                          color: Colors.white,
+                          // padding: EdgeInsets.only(right: 5),
+                          icon: Icon(Icons.edit),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            showLogoutDialog(context);
+                          },
+                          color: Colors.white,
+                          padding: EdgeInsets.only(right: 5),
+                          icon: Icon(Icons.logout),
+                        ),
+                      ],
+                    )
+                  : AppBar(
+                      title: const Text('Zawodnik'),
+                    ),
+              body: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TeamPage(
-                                      team: appState
-                                          .teamsList[widget.player.hatTeam],
-                                    )));
-                      },
-                      style: ButtonStyle(
-                        foregroundColor:
-                            MaterialStateProperty.all<Color>(Colors.black),
-                        padding: MaterialStateProperty.all<EdgeInsets>(
-                            EdgeInsets.zero),
+                    const SizedBox(height: 10),
+                    // Center(
+                    //   child: ProfilePicture(
+                    //     name: widget.player.name,
+                    //     radius: 31,
+                    //     fontsize: 31,
+                    //     img:
+                    //         'http://bestprofilepix.com/wp-content/uploads/2014/03/sad-and-alone-boys-facebook-profile-pictures.jpg',
+                    //     // role: 'test',
+                    //     // tooltip: true,
+                    //   ),
+                    // ),
+                    CircleAvatar(
+                      backgroundColor:
+                          appState.teamsList[widget.player.hatTeam].color,
+                      child: widget.player.pic != null
+                          ? SizedBox(
+                              width: 70,
+                              height: 70,
+                              child: ClipOval(
+                                  child: Image.memory(
+                                widget.player.pic!,
+                                fit: BoxFit.cover,
+                              )),
+                            )
+                          : Text(widget.player.name[0]),
+                      minRadius: 40,
+                    ),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Text(
+                        widget.player.name,
+                        style: Theme.of(context).textTheme.headline5,
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: widget.player.nickname != ""
+                          ? Text(
+                              '\"${widget.player.nickname}\"',
+                              style: Theme.of(context).textTheme.headline6,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(
+                      height: 8,
+                      thickness: 1,
+                      indent: 8,
+                      endIndent: 8,
+                      color: Colors.grey,
+                    ),
+                    Header('Podstawowe informacje'),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Column(
                         children: [
-                          Container(
-                            margin: const EdgeInsets.only(right: 10.0, left: 8),
-                            child: Icon(Icons.people),
-                          ),
-                          Expanded(
-                            child: Column(
+                          // const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => TeamPage(
+                                            team: appState.teamsList[
+                                                widget.player.hatTeam],
+                                          )));
+                            },
+                            style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                  EdgeInsets.zero),
+                            ),
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(widget.player.hatTeam),
-                                const Text('drużyna hatowa')
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(right: 8, left: 10),
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 10),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 15,
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                      right: 10.0, left: 8),
+                                  child: Icon(Icons.people),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(widget.player.hatTeam),
+                                      const Text('drużyna hatowa')
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  margin:
+                                      const EdgeInsets.only(right: 8, left: 10),
+                                  child: Column(
+                                    children: [
+                                      const SizedBox(height: 10),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 15,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
+                          if (widget.player.homeTeam != "")
+                            const Divider(
+                              height: 8,
+                              thickness: 1,
+                              indent: 8,
+                              endIndent: 8,
+                              color: Colors.black,
+                            ),
+                          if (widget.player.homeTeam != "")
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                      right: 10.0, left: 8),
+                                  child: Icon(Icons.people),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(widget.player.homeTeam),
+                                      const Text('drużyna domowa')
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          if (widget.player.city != "")
+                            const Divider(
+                              height: 8,
+                              thickness: 1,
+                              indent: 8,
+                              endIndent: 8,
+                              color: Colors.black,
+                            ),
+                          if (widget.player.city != "")
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                      right: 10.0, left: 8),
+                                  child: Icon(Icons.location_city),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(widget.player.city),
+                                      const Text('miasto')
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          if (widget.player.position != "")
+                            const Divider(
+                              height: 8,
+                              thickness: 1,
+                              indent: 8,
+                              endIndent: 8,
+                              color: Colors.black,
+                            ),
+                          if (widget.player.position != "")
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                      right: 10.0, left: 8),
+                                  child: Icon(Icons.directions_run),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(widget.player.position),
+                                      const Text('pozycja na boisku')
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: 8),
                         ],
                       ),
                     ),
-                    if (widget.player.homeTeam != "")
-                      const Divider(
-                        height: 8,
-                        thickness: 1,
-                        indent: 8,
-                        endIndent: 8,
-                        color: Colors.black,
-                      ),
-                    if (widget.player.homeTeam != "")
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(right: 10.0, left: 8),
-                            child: Icon(Icons.people),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                    if (widget.player.bio != "") Header('Bio'),
+                    if (widget.player.bio != "")
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 8),
+                            Row(
                               children: [
-                                Text(widget.player.homeTeam),
-                                const Text('drużyna domowa')
+                                const SizedBox(width: 8),
+                                Expanded(child: Text(widget.player.bio)),
+                                const SizedBox(width: 8),
                               ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                          ],
+                        ),
                       ),
-                    if (widget.player.city != "")
-                      const Divider(
-                        height: 8,
-                        thickness: 1,
-                        indent: 8,
-                        endIndent: 8,
-                        color: Colors.black,
-                      ),
-                    if (widget.player.city != "")
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(right: 10.0, left: 8),
-                            child: Icon(Icons.location_city),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(widget.player.city),
-                                const Text('miasto')
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    if (widget.player.position != "")
-                      const Divider(
-                        height: 8,
-                        thickness: 1,
-                        indent: 8,
-                        endIndent: 8,
-                        color: Colors.black,
-                      ),
-                    if (widget.player.position != "")
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(right: 10.0, left: 8),
-                            child: Icon(Icons.directions_run),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(widget.player.position),
-                                const Text('pozycja na boisku')
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    const SizedBox(height: 8),
                   ],
+                  // to here.
                 ),
               ),
-              if (widget.player.bio != "") Header('Bio'),
-              if (widget.player.bio != "")
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  margin: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(widget.player.bio)),
-                          const SizedBox(width: 8),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ),
-            ],
-            // to here.
-          ),
-        ),
-      ),
-    );
+            ));
   }
 }
 
@@ -570,12 +582,18 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     final storage = FirebaseStorage.instance;
     final storageRef = storage.ref().child('profile_pics').child(fname);
     // storage.FirebaseStorage.instance.ref(path);
-    try {
-      await storageRef.putFile(img);
-    } on FirebaseException catch (e) {
-      print(e);
+    final fileSize = await img.length();
+    if (fileSize <= configMaxImageSize)
+      try {
+        await storageRef.putFile(img);
+        return 'success';
+      } on FirebaseException catch (e) {
+        print(e);
+      }
+    else {
+      return 'sizeError';
     }
-    return await storageRef.getDownloadURL();
+    return 'error';
   }
 
   // UploadTask uploadString() {
@@ -597,6 +615,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   //     ),
   //   );
   // }
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -635,194 +654,293 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Consumer<ApplicationState>(
-          builder: (context, appState, _) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Header('Podstawowe informacje'),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                margin: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: TextFormField(
-                        controller: _nicknameController,
-                        decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
-                            ),
-                          ),
-                          // hintText: 'Drużyna domowa',
-                          labelText: 'Pseudonim',
-                          labelStyle: TextStyle(color: Colors.black),
-                          fillColor: Colors.white,
-                          filled: true,
-                          // focusColor: Colors.yellow,
-                          // hoverColor: Colors.purple,
-                        ),
-                        // validator: (value) {
-                        //   if (value!.isEmpty) {
-                        //     return 'Enter your account name';
-                        //   }
-                        //   return null;
-                        // },
-                      ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Consumer<ApplicationState>(
+              builder: (context, appState, _) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  Header('Podstawowe informacje'),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: TextFormField(
-                        controller: _homeTeamController,
-                        decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
+                    margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: TextFormField(
+                            controller: _nicknameController,
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              // hintText: 'Drużyna domowa',
+                              labelText: 'Pseudonim',
+                              labelStyle: TextStyle(color: Colors.black),
+                              fillColor: Colors.white,
+                              filled: true,
+                              // focusColor: Colors.yellow,
+                              // hoverColor: Colors.purple,
                             ),
+                            // validator: (value) {
+                            //   if (value!.isEmpty) {
+                            //     return 'Enter your account name';
+                            //   }
+                            //   return null;
+                            // },
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
-                            ),
-                          ),
-                          labelText: 'Drużyna domowa',
-                          labelStyle: TextStyle(color: Colors.black),
-                          fillColor: Colors.white,
-                          filled: true,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: TextFormField(
-                        controller: _cityController,
-                        decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: TextFormField(
+                            controller: _homeTeamController,
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              labelText: 'Drużyna domowa',
+                              labelStyle: TextStyle(color: Colors.black),
+                              fillColor: Colors.white,
+                              filled: true,
                             ),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
-                            ),
-                          ),
-                          labelText: 'Miasto',
-                          labelStyle: TextStyle(color: Colors.black),
-                          fillColor: Colors.white,
-                          filled: true,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: TextFormField(
-                        controller: _positionController,
-                        decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: TextFormField(
+                            controller: _cityController,
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              labelText: 'Miasto',
+                              labelStyle: TextStyle(color: Colors.black),
+                              fillColor: Colors.white,
+                              filled: true,
                             ),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
-                            ),
-                          ),
-                          labelText: 'Pozycja',
-                          labelStyle: TextStyle(color: Colors.black),
-                          fillColor: Colors.white,
-                          filled: true,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: TextFormField(
-                        controller: _bioController,
-                        minLines: 3,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: TextFormField(
+                            controller: _positionController,
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              labelText: 'Pozycja',
+                              labelStyle: TextStyle(color: Colors.black),
+                              fillColor: Colors.white,
+                              filled: true,
                             ),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green.shade800,
-                              width: 3,
-                            ),
-                          ),
-                          labelText: 'Bio',
-                          hintText: 'Powiedz nam coś o sobie',
-                          labelStyle: TextStyle(color: Colors.black),
-                          fillColor: Colors.white,
-                          filled: true,
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: TextFormField(
+                            controller: _bioController,
+                            minLines: 3,
+                            maxLines: null,
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green.shade800,
+                                  width: 3,
+                                ),
+                              ),
+                              labelText: 'Bio',
+                              hintText: 'Powiedz nam coś o sobie',
+                              labelStyle: TextStyle(color: Colors.black),
+                              fillColor: Colors.white,
+                              filled: true,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: OutlinedButton(
+                        onPressed: () async {
+                          await _showChoiceDialog(context);
+                          setState(() => _isLoading = true);
+                          String? uploadState = await _uploadImage(
+                              File(imageFile!.path), widget.player.uid);
+                          if ('sizeError' == uploadState) {
+                            print('too big image');
+                            await showImageAlertDialog(context);
+                          } else {
+                            // widget.player.pic = await widget.player
+                            //     .downloadImage(widget.player.uid);
+                            widget.player.pic =
+                                File(imageFile!.path).readAsBytesSync();
+                            widget.player.hasPic = true;
+                            FirebaseFirestore.instance
+                                .collection('players')
+                                .doc(widget.player.uid)
+                                .update(<String, dynamic>{
+                              'hasPic': true,
+                            });
+                            Navigator.pop(context);
+                          }
+                          setState(() => _isLoading = false);
+                          // print(widget.player.pic);
+                        },
+                        child: const Text('Wybierz zdjęcie profilowe')),
+                  ),
+                  // Card(
+                  //   child: (widget.player.pic == null)
+                  //       ? Text("Choose Image")
+                  //       // : Image.file(File(imageFile!.path)),
+                  //       : Image.memory(widget.player.pic!),
+                  // ),
+                ],
+                // to here.
               ),
-              const SizedBox(height: 8),
-              Center(
-                child: OutlinedButton(
-                    onPressed: () async {
-                      await _showChoiceDialog(context);
-                      String? url = await _uploadImage(
-                          File(imageFile!.path), widget.player.uid);
-                      widget.player.pic =
-                          await widget.player.downloadImage(widget.player.uid);
-                      widget.player.hasPic = true;
-                      FirebaseFirestore.instance
-                          .collection('players')
-                          .doc(widget.player.uid)
-                          .update(<String, dynamic>{
-                        'hasPic': true,
-                      });
-                      Navigator.pop(context);
-                      // print(widget.player.pic);
-                    },
-                    child: const Text('Wybierz zdjęcie profilowe')),
-              ),
-              // Card(
-              //   child: (widget.player.pic == null)
-              //       ? Text("Choose Image")
-              //       // : Image.file(File(imageFile!.path)),
-              //       : Image.memory(widget.player.pic!),
-              // ),
-            ],
-            // to here.
+            ),
           ),
-        ),
+          new Align(
+            child: _isLoading
+                ? loadingIndicator
+                : new Container(),
+            alignment: FractionalOffset.center,
+          ),
+        ],
       ),
     );
   }
+}
+//
+// class _TestSignInViewState extends State<TestSignInView> {
+//   bool _load = false;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     Widget loadingIndicator = _load
+//         ? new Container(
+//             color: Colors.grey[300],
+//             width: 70.0,
+//             height: 70.0,
+//             child: new Padding(
+//                 padding: const EdgeInsets.all(5.0),
+//                 child: new Center(child: new CircularProgressIndicator())),
+//           )
+//         : new Container();
+//     return new Scaffold(
+//         backgroundColor: Colors.white,
+//         body: new Stack(
+//           children: <Widget>[
+//             new Padding(
+//               padding:
+//                   const EdgeInsets.symmetric(vertical: 50.0, horizontal: 20.0),
+//               child: new ListView(
+//                 children: <Widget>[
+//                   new Column(
+//                     mainAxisAlignment: MainAxisAlignment.center,
+//                     crossAxisAlignment: CrossAxisAlignment.center,
+//                     children: <Widget>[
+//                       new TextField(),
+//                       new TextField(),
+//                       new FlatButton(
+//                           color: Colors.blue,
+//                           child: new Text('Sign In'),
+//                           onPressed: () {
+//                             setState(() {
+//                               _load = true;
+//                             });
+//
+//                             //Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new HomeTest()));
+//                           }),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             new Align(
+//               child: loadingIndicator,
+//               alignment: FractionalOffset.center,
+//             ),
+//           ],
+//         ));
+//   }
+// }
+
+showImageAlertDialog(BuildContext context) {
+  Widget cancelButton = TextButton(
+    child: Text("Ok"),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Zbyt duży rozmiar zdjęcia"),
+    content: Text(
+        "Rozmiar zdjęcia nie może przekroczyć ${configMaxImageSize / 1000000} MB."),
+    actions: [
+      cancelButton,
+      // continueButton,
+    ],
+  );
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

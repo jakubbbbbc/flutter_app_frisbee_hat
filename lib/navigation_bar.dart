@@ -4,6 +4,9 @@ import 'package:gtk_flutter/info.dart';
 import 'package:gtk_flutter/plan_page.dart';
 import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/teams_page.dart';
+import 'package:provider/provider.dart';
+
+import 'main.dart';
 
 class MyNavigationBar extends StatefulWidget {
   const MyNavigationBar({Key? key}) : super(key: key);
@@ -14,7 +17,6 @@ class MyNavigationBar extends StatefulWidget {
 
 class _MyNavigationBarState extends State<MyNavigationBar> {
   int _selectedIndex = 0;
-
   final List<Widget> _children = [
     HomeScreen(),
     PlanPage(),
@@ -32,23 +34,26 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _children[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.blueGrey[100],
-        unselectedItemColor: Colors.blueGrey,
-        selectedItemColor: Colors.blue,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month), label: 'Plan'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Zawodnicy'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Drużyny'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.newspaper), label: 'Czytelnia'),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
-    );
+                body: _children[_selectedIndex],
+                bottomNavigationBar: BottomNavigationBar(
+                  backgroundColor: Colors.blueGrey[100],
+                  unselectedItemColor: Colors.blueGrey,
+                  selectedItemColor: Colors.blue,
+                  items: const <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.home), label: 'Home'),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.calendar_month), label: 'Plan'),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.person), label: 'Zawodnicy'),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.people), label: 'Drużyny'),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.newspaper), label: 'Czytelnia'),
+                  ],
+                  currentIndex: _selectedIndex,
+                  onTap: _onItemTapped,
+                ),
+              );
   }
 }
