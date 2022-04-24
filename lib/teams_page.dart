@@ -196,7 +196,7 @@ class _TeamPageState extends State<TeamPage> {
                                           fit: BoxFit.cover,
                                         )),
                                       )
-                                    : Text(player.name[0]),
+                                    : Text(player.name[0]+player.name.split(' ').last[0]),
                               ),
                             ),
                             Expanded(

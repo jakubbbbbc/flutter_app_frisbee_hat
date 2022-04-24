@@ -94,6 +94,7 @@ class ApplicationState extends ChangeNotifier {
     city: '',
     uid: '',
     hasPic: false,
+    badges: <String>[],
   );
 
   get currentPlayer => _currentPlayer;
@@ -146,8 +147,17 @@ class ApplicationState extends ChangeNotifier {
                     : false,
                 uid: document.id,
                 hasPic: document.data()['hasPic'],
+                badges: document.data()['badges'].cast<String>(),
               ),
             );
+            // if (pName == 'Adam Biegała'){
+            // print(_playersList.last.badges.last);
+            //
+            // //   List<String> test = document.data()['badges'].cast<String>();
+            // //   // print(document.data()['badges'] == '');
+            // //   print(document.data()['badges'].cast<String>().runtimeType);
+            // }
+
             if (_playersList.last.hasPic) {
               _playersList.last.pic =
                   await _playersList.last.downloadImage(_playersList.last.uid);

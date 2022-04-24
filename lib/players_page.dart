@@ -32,6 +32,7 @@ class Player {
     required this.uid,
     this.pic,
     required this.hasPic,
+    required this.badges,
   });
 
   final String name;
@@ -46,6 +47,7 @@ class Player {
   final String uid;
   Uint8List? pic;
   bool hasPic;
+  final List<String> badges;
 
   Future<Uint8List?> downloadImage(String fname) async {
     // Create a storage reference from our app
@@ -151,7 +153,8 @@ class _PlayersListState extends State<PlayersList> {
                                   fit: BoxFit.cover,
                                 )),
                               )
-                            : Text(player.name[0]),
+                            : Text(player.name[0] +
+                                player.name.split(' ').last[0]),
                       ),
                     ),
                     Expanded(
@@ -181,14 +184,18 @@ class _PlayersListState extends State<PlayersList> {
 }
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key, required this.player}) : super(key: key);
+  ProfilePage({Key? key, required this.player, this.subpage = 0})
+      : super(key: key);
   final Player player;
+  int subpage;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // int subpage = 0;
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ApplicationState>(
@@ -253,7 +260,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 fit: BoxFit.cover,
                               )),
                             )
-                          : Text(widget.player.name[0]),
+                          : Text(widget.player.name[0] +
+                              widget.player.name.split(' ').last[0]),
                       minRadius: 40,
                     ),
                     const SizedBox(height: 10),
@@ -273,169 +281,73 @@ class _ProfilePageState extends State<ProfilePage> {
                           : null,
                     ),
                     const SizedBox(height: 20),
-                    const Divider(
-                      height: 8,
-                      thickness: 1,
-                      indent: 8,
-                      endIndent: 8,
-                      color: Colors.grey,
-                    ),
-                    Header('Podstawowe informacje'),
                     Container(
-                      decoration: BoxDecoration(
-                        color: themeColors['main']!,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Column(
+                      margin: EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
                         children: [
-                          // const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () async {
-                              appState.currentNavigationBarItem = TabItem.teams;
-                              await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => TeamPage(
-                                            team: appState.teamsList[
-                                                widget.player.hatTeam],
-                                          )));
-                              appState.currentNavigationBarItem =
-                                  TabItem.players;
-                            },
-                            style: ButtonStyle(
-                              foregroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.black),
-                              padding: MaterialStateProperty.all<EdgeInsets>(
-                                  EdgeInsets.zero),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          Expanded(
+                            flex: 5,
+                            child: TextButton(
+                                onPressed: () {
+                                  widget.subpage = 0;
+                                  setState(() {});
+                                },
+                                child: Text('Informacje')),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: TextButton(
+                                onPressed: () {
+                                  widget.subpage = 1;
+                                  setState(() {});
+                                },
+                                child: Text('Odznaki')),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Stack(children: [
+                      const Divider(
+                        height: 8,
+                        thickness: 1,
+                        indent: 8,
+                        endIndent: 8,
+                        color: Colors.grey,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: 0 == widget.subpage
+                                  ? CrossAxisAlignment.start
+                                  : CrossAxisAlignment.end,
                               children: [
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      right: 10.0, left: 8),
-                                  child: Icon(Icons.people),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(widget.player.hatTeam),
-                                      const Text('drużyna hatowa')
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      const EdgeInsets.only(right: 8, left: 10),
-                                  child: Column(
-                                    children: [
-                                      const SizedBox(height: 10),
-                                      Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 15,
-                                      ),
-                                    ],
-                                  ),
+                                FractionallySizedBox(
+                                  widthFactor: 0.5,
+                                  child: 0 == widget.subpage
+                                      ? Divider(
+                                          height: 5,
+                                          thickness: 5,
+                                          indent: 8,
+                                          endIndent: 0,
+                                          color: Colors.grey,
+                                        )
+                                      : Divider(
+                                          height: 5,
+                                          thickness: 5,
+                                          indent: 0,
+                                          endIndent: 8,
+                                          color: Colors.grey,
+                                        ),
                                 ),
                               ],
                             ),
                           ),
-                          if (widget.player.homeTeam != "")
-                            const Divider(
-                              height: 8,
-                              thickness: 1,
-                              indent: 8,
-                              endIndent: 8,
-                              color: Colors.black,
-                            ),
-                          if (widget.player.homeTeam != "")
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      right: 10.0, left: 8),
-                                  child: Icon(Icons.people),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(widget.player.homeTeam),
-                                      const Text('drużyna domowa')
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          if (widget.player.city != "")
-                            const Divider(
-                              height: 8,
-                              thickness: 1,
-                              indent: 8,
-                              endIndent: 8,
-                              color: Colors.black,
-                            ),
-                          if (widget.player.city != "")
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      right: 10.0, left: 8),
-                                  child: Icon(Icons.location_city),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(widget.player.city),
-                                      const Text('miasto')
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          if (widget.player.position != "")
-                            const Divider(
-                              height: 8,
-                              thickness: 1,
-                              indent: 8,
-                              endIndent: 8,
-                              color: Colors.black,
-                            ),
-                          if (widget.player.position != "")
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      right: 10.0, left: 8),
-                                  child: Icon(Icons.directions_run),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(widget.player.position),
-                                      const Text('pozycja na boisku')
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          const SizedBox(height: 8),
                         ],
                       ),
-                    ),
-                    if (widget.player.bio != "") Header('Bio'),
-                    if (widget.player.bio != "")
+                    ]),
+                    if (0 == widget.subpage) ...[
+                      Header('Podstawowe informacje'),
                       Container(
                         decoration: BoxDecoration(
                           color: themeColors['main']!,
@@ -444,18 +356,180 @@ class _ProfilePageState extends State<ProfilePage> {
                         margin: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Column(
                           children: [
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const SizedBox(width: 8),
-                                Expanded(child: Text(widget.player.bio)),
-                                const SizedBox(width: 8),
-                              ],
+                            // const SizedBox(height: 8),
+                            TextButton(
+                              onPressed: () async {
+                                appState.currentNavigationBarItem =
+                                    TabItem.teams;
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => TeamPage(
+                                              team: appState.teamsList[
+                                                  widget.player.hatTeam],
+                                            )));
+                                appState.currentNavigationBarItem =
+                                    TabItem.players;
+                              },
+                              style: ButtonStyle(
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.black),
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                    EdgeInsets.zero),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        right: 10.0, left: 8),
+                                    child: Icon(Icons.people),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(widget.player.hatTeam),
+                                        const Text('drużyna hatowa')
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        right: 8, left: 10),
+                                    child: Column(
+                                      children: [
+                                        const SizedBox(height: 10),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 15,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
+                            if (widget.player.homeTeam != "")
+                              const Divider(
+                                height: 8,
+                                thickness: 1,
+                                indent: 8,
+                                endIndent: 8,
+                                color: Colors.black,
+                              ),
+                            if (widget.player.homeTeam != "")
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        right: 10.0, left: 8),
+                                    child: Icon(Icons.people),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(widget.player.homeTeam),
+                                        const Text('drużyna domowa')
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            if (widget.player.city != "")
+                              const Divider(
+                                height: 8,
+                                thickness: 1,
+                                indent: 8,
+                                endIndent: 8,
+                                color: Colors.black,
+                              ),
+                            if (widget.player.city != "")
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        right: 10.0, left: 8),
+                                    child: Icon(Icons.location_city),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(widget.player.city),
+                                        const Text('miasto')
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            if (widget.player.position != "")
+                              const Divider(
+                                height: 8,
+                                thickness: 1,
+                                indent: 8,
+                                endIndent: 8,
+                                color: Colors.black,
+                              ),
+                            if (widget.player.position != "")
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        right: 10.0, left: 8),
+                                    child: Icon(Icons.directions_run),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(widget.player.position),
+                                        const Text('pozycja na boisku')
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             const SizedBox(height: 8),
                           ],
                         ),
                       ),
+                      if (widget.player.bio != "") Header('Bio'),
+                      if (widget.player.bio != "")
+                        Container(
+                          decoration: BoxDecoration(
+                            color: themeColors['main']!,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const SizedBox(width: 8),
+                                  Expanded(child: Text(widget.player.bio)),
+                                  const SizedBox(width: 8),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+                    ],
+                    if (1 == widget.subpage) ...[
+                      Header('Przyznane odznaki'),
+                      for (var badge in widget.player.badges) Text(badge),
+                    ],
                   ],
                   // to here.
                 ),

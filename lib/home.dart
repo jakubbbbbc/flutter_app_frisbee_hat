@@ -148,7 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 )),
                                               )
                                             : Text(
-                                                appState.currentPlayer.name[0]),
+                                                appState.currentPlayer.name[0] +
+                                                    appState.currentPlayer.name
+                                                        .split(' ')
+                                                        .last[0]),
                                       ),
                                     ),
                                   ],
@@ -242,9 +245,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => TeamPage(
-                                              team: appState.teamsList[appState
-                                                  .currentPlayer.hatTeam],
+                                        builder: (context) => ProfilePage(
+                                              player: appState.currentPlayer,
+                                              subpage: 1,
                                             )));
                               },
                               style: ElevatedButton.styleFrom(
