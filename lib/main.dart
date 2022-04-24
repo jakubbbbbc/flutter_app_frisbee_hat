@@ -5,11 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gtk_flutter/events.dart';
 import 'package:gtk_flutter/info.dart';
+import 'package:gtk_flutter/plan_page.dart';
 import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/teams_page.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import 'config.dart';
 import 'firebase_options.dart';
@@ -72,6 +73,8 @@ class ApplicationState extends ChangeNotifier {
 
   String? get email => _email;
 
+  TabItem currentNavigationBarItem = TabItem.home;
+  TabItem homeNavigationBarItem = TabItem.home;
 
   // players variables
   StreamSubscription<QuerySnapshot>? _playersSubscription;
@@ -107,7 +110,6 @@ class ApplicationState extends ChangeNotifier {
 
   List<GeneralEvent> get eventsList => _eventsList;
 
-
   Future<void> init() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -117,7 +119,7 @@ class ApplicationState extends ChangeNotifier {
       if (user != null) {
         _loginState = ApplicationLoginState.loggedIn;
 
-        // loading players and teams (only players saved in database)
+        // loading players and teams (only player data saved in database)
         _playersSubscription = FirebaseFirestore.instance
             .collection('players')
             .orderBy('name', descending: false)
@@ -150,8 +152,7 @@ class ApplicationState extends ChangeNotifier {
               _playersList.last.pic =
                   await _playersList.last.downloadImage(_playersList.last.uid);
             }
-            if (FirebaseAuth.instance.currentUser!.email ==
-                document.data()['email'] as String) {
+            if (_playersList.last.loggedIn) {
               _currentPlayerDocId = document.id;
               _currentPlayer = _playersList.last;
             }
@@ -167,22 +168,63 @@ class ApplicationState extends ChangeNotifier {
           }
           notifyListeners();
         });
+
+        // loading events and games
+        _eventsSubscription = FirebaseFirestore.instance
+            .collection('events')
+            .orderBy('date')
+            .orderBy('time')
+            .orderBy('place')
+            .orderBy('duration')
+            .snapshots()
+            .listen((snapshot) async {
+          _eventsList = [];
+          for (final document in snapshot.docs) {
+            String eCategory = document.data()['category'] as String;
+            String eDate = document.data()['date'] as String;
+            String eTime = document.data()['time'] as String;
+            if ('mecz' == eCategory)
+              _eventsList.add(GameEvent(
+                  category: eCategory,
+                  name: document.data()['name'] as String,
+                  duration: document.data()['duration'] as String,
+                  day: document.data()['day'] as String,
+                  time: eTime,
+                  place: document.data()['place'] as String,
+                  timestamp: DateFormat('dd.MM.yyyy, hh:mm')
+                      .parse('${eDate}, ${eTime}'),
+                  team1: document.data()['team1'] as String,
+                  team2: document.data()['team2'] as String));
+            else
+              _eventsList.add(GeneralEvent(
+                category: eCategory,
+                name: document.data()['name'] as String,
+                duration: document.data()['duration'] as String,
+                day: document.data()['day'] as String,
+                time: eTime,
+                place: document.data()['place'] as String,
+                timestamp:
+                    DateFormat('dd.MM.yyyy, hh:mm').parse('${eDate}, ${eTime}'),
+              ));
+          }
+          notifyListeners();
+        });
       } else {
         _loginState = ApplicationLoginState.loggedOut;
         _playersList = [];
         _playersSubscription?.cancel();
+        _eventsSubscription?.cancel();
       }
       notifyListeners();
     });
   }
 
   Future<void> updatePlayerInfo(String nickname, String homeTeam, String city,
-      String position, String bio) {
+      String position, String bio) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
-
-    return FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection('players')
         .doc(_currentPlayerDocId)
         .update(<String, dynamic>{
@@ -192,6 +234,7 @@ class ApplicationState extends ChangeNotifier {
       'position': position,
       'bio': bio,
     });
+    // notifyListeners(); //czy to potrzebne?
   }
 
   void startLoginFlow() {

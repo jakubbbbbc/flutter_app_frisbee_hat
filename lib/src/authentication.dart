@@ -113,7 +113,7 @@ class Authentication extends StatelessWidget {
           ),
         );
       case ApplicationLoginState.loggedIn:
-        return MyNavigationBar();
+        return MyNavigationBarPage();
       default:
         return Row(
           children: const [

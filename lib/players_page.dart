@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 // import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gtk_flutter/navigation_bar.dart';
 
 // import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:gtk_flutter/src/authentication.dart';
@@ -16,64 +17,6 @@ import 'src/widgets.dart';
 import 'config.dart';
 
 import 'main.dart';
-
-class PlayersPage extends StatefulWidget {
-  const PlayersPage({Key? key}) : super(key: key);
-
-  @override
-  State<PlayersPage> createState() => _PlayersPageState();
-}
-
-class _PlayersPageState extends State<PlayersPage> {
-  // final List<Player> _players = [
-  //   const Player(name: 'Jakub Ciemięga'),
-  //   const Player(name: 'Adam Biegała'),
-  //   const Player(name: 'Imię Nazwisko'),
-  //   const Player(name: 'Andrzej Testowy'),
-  //   const Player(name: 'Marek Kalicki'),
-  // ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Zawodnicy'),
-      ),
-      body: ListView(
-        children: <Widget>[
-          Consumer<ApplicationState>(
-            builder: (context, appState, _) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // // Add from here
-                // if (appState.attendees >= 2)
-                //   Paragraph('${appState.attendees} people going')
-                // else if (appState.attendees == 1)
-                //   const Paragraph('1 person going')
-                // else
-                //   const Paragraph('No one going'),
-                // // To here.
-                if (appState.loginState == ApplicationLoginState.loggedIn) ...[
-                  // // Add from here
-                  // YesNoSelection(
-                  //   state: appState.attending,
-                  //   onSelection: (attending) => appState.attending = attending,
-                  // ),
-                  // // To here.
-                  // const Header('Discussion'),
-                  PlayersList(
-                    playersList: appState.playersList,
-                  ),
-                ],
-              ],
-            ),
-          ),
-          // To here.
-        ],
-      ),
-    );
-  }
-}
 
 class Player {
   Player({
@@ -122,6 +65,41 @@ class Player {
   }
 }
 
+class PlayersPage extends StatefulWidget {
+  const PlayersPage({Key? key}) : super(key: key);
+
+  @override
+  State<PlayersPage> createState() => _PlayersPageState();
+}
+
+class _PlayersPageState extends State<PlayersPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Zawodnicy'),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Consumer<ApplicationState>(
+            builder: (context, appState, _) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (appState.loginState == ApplicationLoginState.loggedIn) ...[
+                  PlayersList(
+                    playersList: appState.playersList,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // To here.
+        ],
+      ),
+    );
+  }
+}
+
 class PlayersList extends StatefulWidget {
   const PlayersList({required this.playersList});
 
@@ -135,28 +113,29 @@ class _PlayersListState extends State<PlayersList> {
   @override
   // Modify from here
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        for (var player in widget.playersList)
-          // Paragraph('${player.name}: ${player.nickname}'),
-          OutlinedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ProfilePage(
-                            player: player,
-                          )));
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Consumer<ApplicationState>(
-                    builder: (context, appState, _) => Container(
+    return Consumer<ApplicationState>(
+      builder: (context, appState, _) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          for (var player in widget.playersList)
+            // Paragraph('${player.name}: ${player.nickname}'),
+            OutlinedButton(
+              onPressed: () {
+                appState.currentNavigationBarItem = TabItem.players;
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ProfilePage(
+                              player: player,
+                            )));
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
                       margin: const EdgeInsets.only(right: 10.0),
                       child: CircleAvatar(
                         minRadius: 20,
@@ -175,28 +154,28 @@ class _PlayersListState extends State<PlayersList> {
                             : Text(player.name[0]),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Text(player.name,
-                        style: Theme.of(context).textTheme.headline4),
-                  ),
-                  Container(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 10),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 15,
-                        ),
-                      ],
+                    Expanded(
+                      child: Text(player.name,
+                          style: Theme.of(context).textTheme.headline4),
                     ),
-                  ),
-                ],
+                    Container(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 15,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-      ],
-      // to here.
+        ],
+        // to here.
+      ),
     );
   }
 }
@@ -312,14 +291,17 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           // const SizedBox(height: 8),
                           TextButton(
-                            onPressed: () {
-                              Navigator.push(
+                            onPressed: () async {
+                              appState.currentNavigationBarItem = TabItem.teams;
+                              await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => TeamPage(
                                             team: appState.teamsList[
                                                 widget.player.hatTeam],
                                           )));
+                              appState.currentNavigationBarItem =
+                                  TabItem.players;
                             },
                             style: ButtonStyle(
                               foregroundColor: MaterialStateProperty.all<Color>(
@@ -478,6 +460,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   // to here.
                 ),
               ),
+              bottomNavigationBar: MyBottomNavigationBar,
             ));
   }
 }
@@ -863,6 +846,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           ),
         ],
       ),
+      bottomNavigationBar: _isLoading ? null : MyBottomNavigationBar,
     );
   }
 }
