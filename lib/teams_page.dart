@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gtk_flutter/plan_page.dart';
 import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/src/authentication.dart';
 import 'package:gtk_flutter/src/widgets.dart';
@@ -35,7 +36,7 @@ class _TeamsPageState extends State<TeamsPage> {
               children: [
                 if (appState.loginState == ApplicationLoginState.loggedIn) ...[
                   TeamsList(
-                    teamsList: appState.teamsList,
+                    teamsList: appState.teamsMap,
                   ),
                 ],
               ],
@@ -113,8 +114,9 @@ class _TeamsListState extends State<TeamsList> {
 }
 
 class TeamPage extends StatefulWidget {
-  const TeamPage({Key? key, required this.team}) : super(key: key);
+  TeamPage({Key? key, required this.team, this.subpage = 0}) : super(key: key);
   final Team team;
+  int subpage;
 
   @override
   State<TeamPage> createState() => _TeamPageState();
@@ -153,74 +155,140 @@ class _TeamPageState extends State<TeamPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Divider(
-                height: 8,
-                thickness: 1,
-                indent: 8,
-                endIndent: 8,
-                color: Colors.grey,
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: TextButton(
+                          onPressed: () {
+                            widget.subpage = 0;
+                            setState(() {});
+                          },
+                          child: Text('Zawdonicy')),
+                    ),
+                    Expanded(
+                      flex: 5,
+                      child: TextButton(
+                          onPressed: () {
+                            widget.subpage = 1;
+                            setState(() {});
+                          },
+                          child: Text('Mecze')),
+                    ),
+                  ],
+                ),
               ),
-              Header('Zawodnicy'),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  for (var player in widget.team.teamPlayers)
-                    OutlinedButton(
-                      onPressed: () async {
-                        appState.currentNavigationBarItem = TabItem.players;
-                        await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ProfilePage(
-                                      player: player,
-                                    )));
-                        appState.currentNavigationBarItem = TabItem.teams;
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(right: 10.0),
-                              child: CircleAvatar(
-                                backgroundColor: widget.team.color,
-                                child: player.pic != null
-                                    ? SizedBox(
-                                        width: 35,
-                                        height: 35,
-                                        child: ClipOval(
-                                            child: Image.memory(
-                                          player.pic!,
-                                          fit: BoxFit.cover,
-                                        )),
-                                      )
-                                    : Text(player.name[0]+player.name.split(' ').last[0]),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(player.name,
-                                  style: Theme.of(context).textTheme.headline4),
-                            ),
-                            Container(
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 10),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 15,
+              Stack(children: [
+                const Divider(
+                  height: 8,
+                  thickness: 1,
+                  indent: 8,
+                  endIndent: 8,
+                  color: Colors.grey,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: 0 == widget.subpage
+                            ? CrossAxisAlignment.start
+                            : CrossAxisAlignment.end,
+                        children: [
+                          FractionallySizedBox(
+                            widthFactor: 0.5,
+                            child: 0 == widget.subpage
+                                ? Divider(
+                                    height: 5,
+                                    thickness: 5,
+                                    indent: 8,
+                                    endIndent: 0,
+                                    color: Colors.grey,
+                                  )
+                                : Divider(
+                                    height: 5,
+                                    thickness: 5,
+                                    indent: 0,
+                                    endIndent: 8,
+                                    color: Colors.grey,
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                ],
-                // to here.
-              ),
+                  ],
+                ),
+              ]),
+              if (0 == widget.subpage) ...[
+                Header('Zawodnicy'),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    for (var player in widget.team.teamPlayers)
+                      OutlinedButton(
+                        onPressed: () async {
+                          appState.currentNavigationBarItem = TabItem.players;
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ProfilePage(
+                                        player: player,
+                                      )));
+                          appState.currentNavigationBarItem = TabItem.teams;
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 10.0),
+                                child: CircleAvatar(
+                                  backgroundColor: widget.team.color,
+                                  child: player.pic != null
+                                      ? SizedBox(
+                                          width: 35,
+                                          height: 35,
+                                          child: ClipOval(
+                                              child: Image.memory(
+                                            player.pic!,
+                                            fit: BoxFit.cover,
+                                          )),
+                                        )
+                                      : Text(player.name[0] +
+                                          player.name.split(' ').last[0]),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(player.name,
+                                    style:
+                                        Theme.of(context).textTheme.headline4),
+                              ),
+                              Container(
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 10),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 15,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                  // to here.
+                ),
+              ],
+              if (1 == widget.subpage) ...[
+                Header('Mecze'),
+                displayTeamGames(widget.team.name, appState.eventsList),
+              ],
             ],
             // to here.
           ),
@@ -229,4 +297,31 @@ class _TeamPageState extends State<TeamPage> {
       ),
     );
   }
+}
+
+Widget displayTeamGames(String teamName, List<GeneralEvent> eventsList) {
+  List<GameEvent>? teamGames = [];
+  for (var event in eventsList) {
+    if (event is GameEvent) if (teamName == event.team1 ||
+        teamName == event.team2) teamGames.add(event);
+  }
+  if (teamGames == []) return Container();
+
+  return ListView(
+    shrinkWrap: true,
+    physics: NeverScrollableScrollPhysics(),
+    children: <Widget>[
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          for (var game in teamGames) ...[
+            displayGame(game),
+            SizedBox(height: 10),
+          ]
+        ],
+      ),
+      // To here.
+    ],
+  );
 }

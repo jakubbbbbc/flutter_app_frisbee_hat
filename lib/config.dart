@@ -39,3 +39,15 @@ final eventDays = {
   2: 'sobota',
   3: 'niedziela',
 };
+
+final badgeIcons = {
+  'Organizator': Icons.admin_panel_settings,
+  'Mistrzowska Akcja': Icons.star,
+  'Czyścioch': Icons.clean_hands,
+};
+
+final badgeDescription = {
+  'Organizator': 'Członek teamu organizatorów',
+  'Mistrzowska Akcja': 'Weź udział w najlepszej akcji meczu',
+  'Czyścioch': 'Użyj płynu do dezynfekcji',
+};

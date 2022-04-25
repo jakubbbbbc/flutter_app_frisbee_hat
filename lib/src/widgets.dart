@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../config.dart';
+
 class Header extends StatelessWidget {
   const Header(this.heading);
+
   final String heading;
 
   @override
@@ -16,7 +19,9 @@ class Header extends StatelessWidget {
 
 class Paragraph extends StatelessWidget {
   const Paragraph(this.content);
+
   final String content;
+
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -29,6 +34,7 @@ class Paragraph extends StatelessWidget {
 
 class IconAndDetail extends StatelessWidget {
   const IconAndDetail(this.icon, this.detail);
+
   final IconData icon;
   final String detail;
 
@@ -50,6 +56,7 @@ class IconAndDetail extends StatelessWidget {
 
 class StyledButton extends StatelessWidget {
   const StyledButton({required this.child, required this.onPressed});
+
   final Widget child;
   final void Function() onPressed;
 
@@ -72,3 +79,48 @@ Widget loadingIndicator = new Container(
         child: new Center(child: new CircularProgressIndicator())),
   ),
 );
+
+class BadgeView extends StatelessWidget {
+  const BadgeView({required this.badge});
+
+  final String badge;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) =>
+            Container(
+          // width: constraints.maxWidth/2,
+          // height: constraints.maxWidth/2,
+          child: Container(
+            decoration: BoxDecoration(
+              color: themeColors['main']!,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            padding: EdgeInsets.all(10),
+            margin: EdgeInsets.all(10),
+            child: Column(
+              children: [
+                Text(
+                  badge,
+                  style: TextStyle(color: Colors.white),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Center(
+                    child: Icon(
+                  badgeIcons[badge],
+                  size: constraints.maxWidth / 2,
+                  color: themeColors['dark'],
+                )),
+                Text(
+                  badgeDescription[badge]!,
+                  style: TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+}

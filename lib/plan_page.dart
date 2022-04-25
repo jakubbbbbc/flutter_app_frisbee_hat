@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gtk_flutter/config.dart';
+import 'package:provider/provider.dart';
+
+import 'main.dart';
 
 class GeneralEvent {
   final String category;
@@ -23,20 +26,22 @@ class GeneralEvent {
 class GameEvent extends GeneralEvent {
   final String team1;
   final String team2;
-  int score1 = 0;
-  int score2 = 0;
+  int score1;
+  int score2;
 
-  GameEvent(
-      {required String category,
-      required String name,
-      required String place,
-      required String day,
-      required String time,
-      required String duration,
-      required DateTime timestamp,
-      required this.team1,
-      required this.team2})
-      : super(
+  GameEvent({
+    required String category,
+    required String name,
+    required String place,
+    required String day,
+    required String time,
+    required String duration,
+    required DateTime timestamp,
+    required this.team1,
+    required this.team2,
+    this.score1 = 0,
+    this.score2 = 0,
+  }) : super(
             category: category,
             name: name,
             place: place,
@@ -105,4 +110,79 @@ class _PlanPageState extends State<PlanPage> {
       ),
     );
   }
+}
+
+Widget displayGame(GameEvent game) {
+  bool alreadyPlayed = game.score1 != 0 || game.score2 != 0;
+
+  return Consumer<ApplicationState>(
+    builder: (context, appState, _) => Container(
+      decoration: BoxDecoration(
+        color: themeColors['main'],
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+      padding: EdgeInsets.all(5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("${game.day}  ${game.time}"),
+                Spacer(),
+                if (alreadyPlayed) ...[
+                  if (game.score1 == game.score2) ...[
+                    Text('remis'.toUpperCase()),
+                  ] else if (appState.currentPlayer.hatTeam == game.team1 &&
+                          game.score1 > game.score2 ||
+                      appState.currentPlayer.hatTeam == game.team2 &&
+                          game.score1 < game.score2) ...[
+                    Text('zwycięstwo'.toUpperCase()),
+                  ] else ...[
+                    Text('porażka'.toUpperCase()),
+                  ],
+                ] else ...[
+                  Text(game.place),
+                ],
+              ]),
+          if (alreadyPlayed) ...[
+            SizedBox(height: 20)
+          ] else ...[
+            SizedBox(height: 5),
+            Align(alignment: Alignment.centerRight, child: Text(game.duration)),
+          ],
+          Row(
+            children: [
+              CircleAvatar(
+                maxRadius: 15,
+                backgroundColor: appState.teamsMap[game.team1].color,
+              ),
+              SizedBox(width: 5),
+              Text(game.team1, textScaleFactor: 1.5),
+              if (alreadyPlayed) ...[
+                Spacer(),
+                Text(game.score1.toString(), textScaleFactor: 1.5),
+              ],
+            ],
+          ),
+          SizedBox(height: 5),
+          Row(
+            children: [
+              CircleAvatar(
+                maxRadius: 15,
+                backgroundColor: appState.teamsMap[game.team2].color,
+              ),
+              SizedBox(width: 5),
+              Text(game.team2, textScaleFactor: 1.5),
+              if (alreadyPlayed) ...[
+                Spacer(),
+                Text(game.score2.toString(), textScaleFactor: 1.5),
+              ],
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }

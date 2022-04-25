@@ -32,6 +32,7 @@ class Player {
     required this.uid,
     this.pic,
     required this.hasPic,
+    required this.isAdmin,
     required this.badges,
   });
 
@@ -47,6 +48,7 @@ class Player {
   final String uid;
   Uint8List? pic;
   bool hasPic;
+  final bool isAdmin;
   final List<String> badges;
 
   Future<Uint8List?> downloadImage(String fname) async {
@@ -142,7 +144,7 @@ class _PlayersListState extends State<PlayersList> {
                       child: CircleAvatar(
                         minRadius: 20,
                         backgroundColor:
-                            appState.teamsList[player.hatTeam].color,
+                            appState.teamsMap[player.hatTeam].color,
                         child: player.pic != null
                             ? SizedBox(
                                 width: 35,
@@ -249,7 +251,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     // ),
                     CircleAvatar(
                       backgroundColor:
-                          appState.teamsList[widget.player.hatTeam].color,
+                          appState.teamsMap[widget.player.hatTeam].color,
                       child: widget.player.pic != null
                           ? SizedBox(
                               width: 70,
@@ -365,7 +367,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => TeamPage(
-                                              team: appState.teamsList[
+                                              team: appState.teamsMap[
                                                   widget.player.hatTeam],
                                             )));
                                 appState.currentNavigationBarItem =
@@ -527,8 +529,16 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                     ],
                     if (1 == widget.subpage) ...[
-                      Header('Przyznane odznaki'),
-                      for (var badge in widget.player.badges) Text(badge),
+                      Header('Zdobyte odznaki'),
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        children: [
+                          for (var badge in widget.player.badges)
+                            BadgeView(badge: badge),
+                        ],
+                      ),
                     ],
                   ],
                   // to here.

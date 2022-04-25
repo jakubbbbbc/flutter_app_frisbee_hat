@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.white,
             child: CircleAvatar(
               radius: 25,
-              backgroundColor: appState.teamsList[opponent].color,
+              backgroundColor: appState.teamsMap[opponent].color,
             ),
           ),
           Text(
@@ -74,199 +74,225 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               body: Stack(
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    // crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      SizedBox(height: 100),
-                      Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: Column(
+                  SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      // crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        SizedBox(height: 100),
+                        Padding(
+                          padding: const EdgeInsets.all(30.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Cześć',
+                                    textScaleFactor: 2,
+                                  )
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    '${appState.currentPlayer.name.split(' ').first}!',
+                                    textScaleFactor: 2,
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Cześć',
-                                  textScaleFactor: 2,
-                                )
-                              ],
+                            Container(
+                              width: 150,
+                              height: 150,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  appState.currentNavigationBarItem =
+                                      TabItem.players;
+                                  await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ProfilePage(
+                                                player: appState.currentPlayer,
+                                              )));
+                                  setState(() {});
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                child: Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
+                                  child: Column(
+                                    children: [
+                                      Text('Twój profil'),
+                                      Expanded(
+                                        child: CircleAvatar(
+                                          radius: 50,
+                                          backgroundColor: appState
+                                              .teamsMap[appState
+                                                  .currentPlayer.hatTeam]
+                                              .color,
+                                          child: appState.currentPlayer.pic !=
+                                                  null
+                                              ? SizedBox(
+                                                  width: 90,
+                                                  height: 90,
+                                                  child: ClipOval(
+                                                      child: Image.memory(
+                                                    appState.currentPlayer.pic!,
+                                                    fit: BoxFit.cover,
+                                                  )),
+                                                )
+                                              : Text(appState
+                                                      .currentPlayer.name[0] +
+                                                  appState.currentPlayer.name
+                                                      .split(' ')
+                                                      .last[0]),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                            Row(
-                              children: [
-                                Text(
-                                  '${appState.currentPlayer.name.split(' ').first}!',
-                                  textScaleFactor: 2,
-                                )
-                              ],
+                            SizedBox(width: 10),
+                            Container(
+                              width: 150,
+                              height: 150,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  appState.currentNavigationBarItem =
+                                      TabItem.teams;
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => TeamPage(
+                                                team: appState.teamsMap[
+                                                    appState
+                                                        .currentPlayer.hatTeam],
+                                              )));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                child: Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
+                                  child: Column(
+                                    children: [
+                                      Text('Twoja drużyna'),
+                                      Expanded(
+                                        child: CircleAvatar(
+                                          radius: 50,
+                                          backgroundColor: Colors.white,
+                                          child: CircleAvatar(
+                                            radius: 45,
+                                            backgroundColor: appState
+                                                .teamsMap[appState
+                                                    .currentPlayer.hatTeam]
+                                                .color,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(appState
+                                          .teamsMap[
+                                              appState.currentPlayer.hatTeam]
+                                          .name),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 150,
-                            height: 150,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                appState.currentNavigationBarItem =
-                                    TabItem.players;
-                                await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ProfilePage(
-                                              player: appState.currentPlayer,
-                                            )));
-                                setState(() {});
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10))),
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 5.0),
-                                child: Column(
-                                  children: [
-                                    Text('Twój profil'),
-                                    Expanded(
-                                      child: CircleAvatar(
-                                        radius: 50,
-                                        backgroundColor: appState
-                                            .teamsList[
-                                                appState.currentPlayer.hatTeam]
-                                            .color,
-                                        child: appState.currentPlayer.pic !=
-                                                null
-                                            ? SizedBox(
-                                                width: 90,
-                                                height: 90,
-                                                child: ClipOval(
-                                                    child: Image.memory(
-                                                  appState.currentPlayer.pic!,
-                                                  fit: BoxFit.cover,
-                                                )),
-                                              )
-                                            : Text(
-                                                appState.currentPlayer.name[0] +
-                                                    appState.currentPlayer.name
-                                                        .split(' ')
-                                                        .last[0]),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 150,
+                              height: 150,
+                              decoration: BoxDecoration(
+                                color: themeColors['main']!,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 5.0),
+                              // margin:
+                              // const EdgeInsets.symmetric(vertical: 5.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'Następny mecz',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Spacer(),
+                                  // Text('NASTĘPNY MECZ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                                  displayNextGame(
+                                      appState.currentPlayer.hatTeam,
+                                      appState.eventsList),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Container(
+                              width: 150,
+                              height: 150,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ProfilePage(
+                                                player: appState.currentPlayer,
+                                                subpage: 1,
+                                              )));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                child: Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
+                                  child: Column(
+                                    children: [
+                                      Text('Twoje odznaki'),
+                                      SizedBox(height: 10),
+                                      GridView.count(
+                                        childAspectRatio: 1.1,
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        crossAxisCount: 3,
+                                        children: [
+                                          for (var badge
+                                              in appState.currentPlayer.badges)
+                                            Icon(
+                                              badgeIcons[badge],
+                                              color: themeColors['dark'],
+                                              size: 35,
+                                            ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          Container(
-                            width: 150,
-                            height: 150,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                appState.currentNavigationBarItem =
-                                    TabItem.teams;
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => TeamPage(
-                                              team: appState.teamsList[appState
-                                                  .currentPlayer.hatTeam],
-                                            )));
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10))),
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 5.0),
-                                child: Column(
-                                  children: [
-                                    Text('Twoja drużyna'),
-                                    Expanded(
-                                      child: CircleAvatar(
-                                        radius: 50,
-                                        backgroundColor: Colors.white,
-                                        child: CircleAvatar(
-                                          radius: 45,
-                                          backgroundColor: appState
-                                              .teamsList[appState
-                                                  .currentPlayer.hatTeam]
-                                              .color,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(appState
-                                        .teamsList[
-                                            appState.currentPlayer.hatTeam]
-                                        .name),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 150,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              color: themeColors['main']!,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            padding: EdgeInsets.symmetric(vertical: 5.0),
-                            // margin:
-                            // const EdgeInsets.symmetric(vertical: 5.0),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Następny mecz',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                Spacer(),
-                                // Text('NASTĘPNY MECZ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                                displayNextGame(appState.currentPlayer.hatTeam,
-                                    appState.eventsList),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Container(
-                            width: 150,
-                            height: 150,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ProfilePage(
-                                              player: appState.currentPlayer,
-                                              subpage: 1,
-                                            )));
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10))),
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 5.0),
-                                child: Column(
-                                  children: [
-                                    Text('Twoje odznaki'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Header('Tabela'),
+                        displayTable(),
+                      ],
+                    ),
                   ),
                   // new Align(
                   //   child: appState.currentPlayer.uid == ''
@@ -279,4 +305,46 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
     );
   }
+}
+
+Widget displayTable() {
+
+  return Consumer<ApplicationState>(
+    builder: (context, appState, _) => Container(
+      decoration: BoxDecoration(
+        color: themeColors['main'],
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+      padding: EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                  flex: 2,
+                  child: Text('Lp')),
+              Expanded(
+                  flex: 4,
+                  child: Text('Drużyna')),
+              for (var val in ['M', 'Z', 'R', 'P'])
+                Expanded(
+                    flex: 1,
+                    child: Text(val)),
+              Expanded(
+                  flex: 2,
+                  child: Text('+/-')),
+            ],
+          ),
+          Divider(
+            height: 8,
+            thickness: 1,
+            indent: 0,
+            endIndent: 0,
+            color: Colors.grey,
+          ),        ],
+      ),
+    ),
+  );
 }

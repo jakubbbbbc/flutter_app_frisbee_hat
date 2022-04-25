@@ -94,6 +94,7 @@ class ApplicationState extends ChangeNotifier {
     city: '',
     uid: '',
     hasPic: false,
+    isAdmin: false,
     badges: <String>[],
   );
 
@@ -103,7 +104,7 @@ class ApplicationState extends ChangeNotifier {
   // teams variables
   var _teamsMap = new Map();
 
-  get teamsList => _teamsMap;
+  get teamsMap => _teamsMap;
 
   // events variables
   StreamSubscription<QuerySnapshot>? _eventsSubscription;
@@ -147,16 +148,12 @@ class ApplicationState extends ChangeNotifier {
                     : false,
                 uid: document.id,
                 hasPic: document.data()['hasPic'],
+                isAdmin: document.data()['isAdmin'],
+                // badges: <String>[],
                 badges: document.data()['badges'].cast<String>(),
               ),
             );
-            // if (pName == 'Adam Biegała'){
-            // print(_playersList.last.badges.last);
-            //
-            // //   List<String> test = document.data()['badges'].cast<String>();
-            // //   // print(document.data()['badges'] == '');
-            // //   print(document.data()['badges'].cast<String>().runtimeType);
-            // }
+            // print(_playersList.last.isAdmin);
 
             if (_playersList.last.hasPic) {
               _playersList.last.pic =
@@ -176,6 +173,9 @@ class ApplicationState extends ChangeNotifier {
                   teamPlayers: [_playersList.last]);
             }
           }
+          var sortedKeys = _teamsMap.keys.toList(growable:false)
+            ..sort((k1, k2) => _teamsMap[k1].teamPlayers.length.compareTo(_teamsMap[k2].teamPlayers.length));
+          print(sortedKeys);
           notifyListeners();
         });
 
@@ -193,19 +193,34 @@ class ApplicationState extends ChangeNotifier {
             String eCategory = document.data()['category'] as String;
             String eDate = document.data()['date'] as String;
             String eTime = document.data()['time'] as String;
-            if ('mecz' == eCategory)
-              _eventsList.add(GameEvent(
-                  category: eCategory,
-                  name: document.data()['name'] as String,
-                  duration: document.data()['duration'] as String,
-                  day: document.data()['day'] as String,
-                  time: eTime,
-                  place: document.data()['place'] as String,
-                  timestamp: DateFormat('dd.MM.yyyy, hh:mm')
-                      .parse('${eDate}, ${eTime}'),
-                  team1: document.data()['team1'] as String,
-                  team2: document.data()['team2'] as String));
-            else
+            if ('mecz' == eCategory) {
+              if ('' == document.data()['score1'])
+                _eventsList.add(GameEvent(
+                    category: eCategory,
+                    name: document.data()['name'] as String,
+                    duration: document.data()['duration'] as String,
+                    day: document.data()['day'] as String,
+                    time: eTime,
+                    place: document.data()['place'] as String,
+                    timestamp: DateFormat('dd.MM.yyyy, hh:mm')
+                        .parse('${eDate}, ${eTime}'),
+                    team1: document.data()['team1'] as String,
+                    team2: document.data()['team2'] as String));
+              else
+                _eventsList.add(GameEvent(
+                    category: eCategory,
+                    name: document.data()['name'] as String,
+                    duration: document.data()['duration'] as String,
+                    day: document.data()['day'] as String,
+                    time: eTime,
+                    place: document.data()['place'] as String,
+                    timestamp: DateFormat('dd.MM.yyyy, hh:mm')
+                        .parse('${eDate}, ${eTime}'),
+                    team1: document.data()['team1'] as String,
+                    team2: document.data()['team2'] as String,
+                    score1: document.data()['score1'],
+                    score2: document.data()['score2']));
+            } else
               _eventsList.add(GeneralEvent(
                 category: eCategory,
                 name: document.data()['name'] as String,
@@ -244,6 +259,12 @@ class ApplicationState extends ChangeNotifier {
       'position': position,
       'bio': bio,
     });
+    // FirebaseFirestore.instance
+    //     .collection('events')
+    //     .doc('gid2')
+    //     .update(<String, dynamic>{
+    //   'score2': 4,
+    // });
     // notifyListeners(); //czy to potrzebne?
   }
 
