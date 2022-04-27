@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gtk_flutter/plan_page.dart';
 import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/src/widgets.dart';
 import 'package:provider/provider.dart';
@@ -16,22 +17,6 @@ class BadgesEditPage extends StatefulWidget {
 }
 
 class _BadgesEditPageState extends State<BadgesEditPage> {
-  final _nicknameController = TextEditingController();
-  final _homeTeamController = TextEditingController();
-  final _cityController = TextEditingController();
-  final _positionController = TextEditingController();
-  final _bioController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _nicknameController.text = widget.player.nickname;
-    _homeTeamController.text = widget.player.homeTeam;
-    _cityController.text = widget.player.city;
-    _positionController.text = widget.player.position;
-    _bioController.text = widget.player.bio;
-  }
-
   bool _isLoading = false;
 
   @override
@@ -48,7 +33,7 @@ class _BadgesEditPageState extends State<BadgesEditPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  Header('Przyznane odznaki'),
+                  Header('Przyznane odznaki' + ': ' + widget.player.name),
                   GridView.count(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
@@ -84,19 +69,25 @@ class _BadgesEditPageState extends State<BadgesEditPage> {
                                         size: constraints.maxWidth / 2,
                                         color: themeColors['dark'],
                                       ),
-                                      Checkbox(
-                                        value: widget.player.badges
-                                            .contains(badge),
-                                        onChanged: (value) {
-                                          if (value!)
-                                            widget.player.badges.add(badge);
-                                          else
-                                            widget.player.badges.remove(badge);
-                                          appState.updatePlayerBadges(
-                                              widget.player.uid,
-                                              widget.player.badges);
-                                          setState(() {});
-                                        },
+                                      Transform.scale(
+                                        scale: 1.5,
+                                        child: Checkbox(
+                                          value: widget.player.badges
+                                              .contains(badge),
+                                          onChanged: (value) async {
+                                            if (value!)
+                                              widget.player.badges.add(badge);
+                                            else
+                                              widget.player.badges
+                                                  .remove(badge);
+                                            _isLoading = true;
+                                            await appState.updatePlayerBadges(
+                                                widget.player.uid,
+                                                widget.player.badges);
+                                            _isLoading = false;
+                                            setState(() {});
+                                          },
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -127,57 +118,204 @@ class _BadgesEditPageState extends State<BadgesEditPage> {
     );
   }
 }
-//
-// class _TestSignInViewState extends State<TestSignInView> {
-//   bool _load = false;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     Widget loadingIndicator = _load
-//         ? new Container(
-//             color: Colors.grey[300],
-//             width: 70.0,
-//             height: 70.0,
-//             child: new Padding(
-//                 padding: const EdgeInsets.all(5.0),
-//                 child: new Center(child: new CircularProgressIndicator())),
-//           )
-//         : new Container();
-//     return new Scaffold(
-//         backgroundColor: Colors.white,
-//         body: new Stack(
-//           children: <Widget>[
-//             new Padding(
-//               padding:
-//                   const EdgeInsets.symmetric(vertical: 50.0, horizontal: 20.0),
-//               child: new ListView(
-//                 children: <Widget>[
-//                   new Column(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     crossAxisAlignment: CrossAxisAlignment.center,
-//                     children: <Widget>[
-//                       new TextField(),
-//                       new TextField(),
-//                       new FlatButton(
-//                           color: Colors.blue,
-//                           child: new Text('Sign In'),
-//                           onPressed: () {
-//                             setState(() {
-//                               _load = true;
-//                             });
-//
-//                             //Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new HomeTest()));
-//                           }),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             new Align(
-//               child: loadingIndicator,
-//               alignment: FractionalOffset.center,
-//             ),
-//           ],
-//         ));
-//   }
-// }
+
+class ScoreEditPage extends StatefulWidget {
+  const ScoreEditPage({Key? key, required this.game}) : super(key: key);
+  final GameEvent game;
+
+  @override
+  State<ScoreEditPage> createState() => _ScoreEditPageState();
+}
+
+class _ScoreEditPageState extends State<ScoreEditPage> {
+  bool _isLoading = false;
+
+  final _score1Controller = TextEditingController();
+  final _score2Controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _score1Controller.text = widget.game.score1.toString();
+    _score2Controller.text = widget.game.score2.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edycja wyniku meczu'),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              _isLoading
+                  ? null
+                  : showEditScoreDialog(
+                      context,
+                      widget.game,
+                      int.parse(_score1Controller.text),
+                      int.parse(_score2Controller.text));
+            },
+            color: Colors.white,
+            padding: EdgeInsets.only(right: 5),
+            icon: Icon(Icons.check),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Consumer<ApplicationState>(
+              builder: (context, appState, _) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  Header('Wynik'),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: themeColors['main']!,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                    padding: EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              maxRadius: 15,
+                              backgroundColor:
+                                  appState.teamsMap[widget.game.team1].color,
+                            ),
+                            SizedBox(width: 10),
+                            Text(widget.game.team1, textScaleFactor: 1.5),
+                            Spacer(),
+                            Container(
+                              width: 60,
+                              child: TextFormField(
+                                controller: _score1Controller,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: themeColors['dark']!,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: themeColors['dark']!,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  // hintText: 'Drużyna domowa',
+                                  // labelText: 'Wynik 1',
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  // focusColor: Colors.yellow,
+                                  // hoverColor: Colors.purple,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Divider(
+                          height: 8,
+                          thickness: 2,
+                          color: Colors.grey,
+                        ),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              maxRadius: 15,
+                              backgroundColor:
+                                  appState.teamsMap[widget.game.team2].color,
+                            ),
+                            SizedBox(width: 10),
+                            Text(widget.game.team2, textScaleFactor: 1.5),
+                            Spacer(),
+                            Container(
+                              width: 60,
+                              child: TextFormField(
+                                controller: _score2Controller,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: themeColors['dark']!,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: themeColors['dark']!,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  // hintText: 'Drużyna domowa',
+                                  // labelText: 'Wynik 1',
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  // focusColor: Colors.yellow,
+                                  // hoverColor: Colors.purple,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                // to here.
+              ),
+            ),
+          ),
+          new Align(
+            child: _isLoading ? loadingIndicator : new Container(),
+            alignment: FractionalOffset.center,
+          ),
+        ],
+      ),
+      bottomNavigationBar: _isLoading ? null : MyBottomNavigationBar,
+    );
+  }
+}
+
+showEditScoreDialog(
+    BuildContext context, GameEvent game, int score1, int score2) {
+  Widget cancelButton = TextButton(
+    child: Text("Cofnij"),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+  Widget continueButton = TextButton(
+    child: Text("Zapisz"),
+    onPressed: () {
+      //TODO implement firebase save and team results update
+      //TODO how to pop context twice? - is it necessary?
+      Navigator.pop(context);
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Potwierdzenie zmiany wyniku meczu"),
+    content: Text("Czy na pewno zapisać nowy wynik meczu?"),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}

@@ -1,12 +1,18 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 
 const maxImageSize = 2000000;
 
-enum TabItem { home, plan, players, teams, read}
+// for displaying next game
+// DateTime compareDate = DateTime.now();
+DateTime compareDate =
+    DateFormat('dd.MM.yyyy, hh:mm').parse('23.04.2022, 08:55');
 
-final themeColors={
+
+enum TabItem { home, plan, players, teams, read }
+
+final themeColors = {
   'main': Colors.green,
   'dark': Colors.green.shade800,
   // 'main': Colors.purple,
@@ -26,7 +32,6 @@ final colorNames = {
   Colors.red: 'czerwony',
   Colors.orange: 'pomarańczowy',
 };
-
 
 final eventColors = {
   'mecz': Colors.blue,

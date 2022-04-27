@@ -54,11 +54,20 @@ class Team {
     required this.name,
     required this.color,
     required this.teamPlayers,
+    this.numPoints=0,
+    this.numWins=0,
+    this.numDraws=0,
+    this.numLoses=0,
+
   });
 
   final String name;
   final MaterialColor color;
   List<Player> teamPlayers;
+  int numPoints;
+  int numWins;
+  int numDraws;
+  int numLoses;
 }
 
 class TeamsList extends StatefulWidget {
@@ -74,47 +83,50 @@ class _TeamsListState extends State<TeamsList> {
   @override
   // Modify from here
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        for (var team in widget.teamsList.values)
-          OutlinedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => TeamPage(
-                            team: team,
-                          )));
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 10.0),
-                    child: CircleAvatar(
-                      backgroundColor: team.color,
+    return Consumer<ApplicationState>(
+      builder: (context, appState, _) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          for (var team in widget.teamsList.values)
+            OutlinedButton(
+              onPressed: () {
+                appState.currentNavigationBarItem = TabItem.teams;
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TeamPage(
+                              team: team,
+                            )));
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 10.0),
+                      child: CircleAvatar(
+                        backgroundColor: team.color,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Text(team.name,
-                        style: Theme.of(context).textTheme.headline4),
-                  ),
-                ],
+                    Expanded(
+                      child: Text(team.name,
+                          style: Theme.of(context).textTheme.headline4),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-      ],
-      // to here.
+        ],
+        // to here.
+      ),
     );
   }
 }
 
 class TeamPage extends StatefulWidget {
-  TeamPage({Key? key, required this.team, this.subpage = 0}) : super(key: key);
+  TeamPage({Key? key, required this.team, this.subpage = 1}) : super(key: key);
   final Team team;
   int subpage;
 

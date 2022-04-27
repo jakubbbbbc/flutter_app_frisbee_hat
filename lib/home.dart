@@ -5,7 +5,6 @@ import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/src/widgets.dart';
 import 'package:gtk_flutter/teams_page.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 import 'config.dart';
 
@@ -20,13 +19,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget displayNextGame(String teamName, List<GeneralEvent> eventsList) {
     GameEvent? game;
     late String opponent;
-    // DateTime compareDate = DateTime.now();
-    DateTime compareDate =
-        DateFormat('dd.MM.yyyy, hh:mm').parse('23.04.2022, 08:55');
     for (var event in eventsList) {
       if (event is GameEvent) {
-        if (event.timestamp.isAfter(compareDate) && teamName == event.team1 ||
-            teamName == event.team2) {
+        if (event.timestamp.isAfter(compareDate) &&
+            (teamName == event.team1 || teamName == event.team2)) {
           game = event;
           opponent = teamName == event.team1 ? event.team2 : event.team1;
           break;
@@ -173,9 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => TeamPage(
-                                                team: appState.teamsMap[
-                                                    appState
-                                                        .currentPlayer.hatTeam],
+                                                team: appState.teamsMap[appState
+                                                    .currentPlayer.hatTeam],
                                               )));
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -308,7 +303,6 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 Widget displayTable() {
-
   return Consumer<ApplicationState>(
     builder: (context, appState, _) => Container(
       decoration: BoxDecoration(
@@ -322,19 +316,11 @@ Widget displayTable() {
         children: [
           Row(
             children: [
-              Expanded(
-                  flex: 2,
-                  child: Text('Lp')),
-              Expanded(
-                  flex: 4,
-                  child: Text('Drużyna')),
+              Expanded(flex: 2, child: Text('Lp')),
+              Expanded(flex: 4, child: Text('Drużyna')),
               for (var val in ['M', 'Z', 'R', 'P'])
-                Expanded(
-                    flex: 1,
-                    child: Text(val)),
-              Expanded(
-                  flex: 2,
-                  child: Text('+/-')),
+                Expanded(flex: 1, child: Text(val)),
+              Expanded(flex: 2, child: Text('+/-')),
             ],
           ),
           Divider(
@@ -343,7 +329,8 @@ Widget displayTable() {
             indent: 0,
             endIndent: 0,
             color: Colors.grey,
-          ),        ],
+          ),
+        ],
       ),
     ),
   );

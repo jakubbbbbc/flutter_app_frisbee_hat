@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:gtk_flutter/admin_functions.dart';
 import 'package:gtk_flutter/config.dart';
 import 'package:provider/provider.dart';
 
@@ -123,65 +125,91 @@ Widget displayGame(GameEvent game) {
       ),
       margin: const EdgeInsets.symmetric(horizontal: 10.0),
       padding: EdgeInsets.all(5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-              // crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("${game.day}  ${game.time}"),
-                Spacer(),
-                if (alreadyPlayed) ...[
-                  if (game.score1 == game.score2) ...[
-                    Text('remis'.toUpperCase()),
-                  ] else if (appState.currentPlayer.hatTeam == game.team1 &&
-                          game.score1 > game.score2 ||
-                      appState.currentPlayer.hatTeam == game.team2 &&
-                          game.score1 < game.score2) ...[
-                    Text('zwycięstwo'.toUpperCase()),
+      child: TextButton(
+        style: ButtonStyle(
+          padding: MaterialStateProperty.all(EdgeInsets.zero),
+          foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+          textStyle: MaterialStateProperty.all(
+              TextStyle(fontWeight: FontWeight.normal)),
+          // textStyle: TextStyle(fontWeight: FontWeight.normal),
+        ),
+        onPressed: () async {
+          if (!appState.currentPlayer.isAdmin)
+            null;
+          else {
+            await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ScoreEditPage(
+                          game: game,
+                        )));
+            //TODO change widget to class to refresh?
+            // setState(() {});
+          }
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (appState.currentPlayer.isAdmin)
+                    Icon(Icons.edit),
+                  Text("${game.day}  ${game.time}"),
+                  Spacer(),
+                  if (alreadyPlayed) ...[
+                    if (game.score1 == game.score2) ...[
+                      Text('remis'.toUpperCase()),
+                    ] else if (appState.currentPlayer.hatTeam == game.team1 &&
+                            game.score1 > game.score2 ||
+                        appState.currentPlayer.hatTeam == game.team2 &&
+                            game.score1 < game.score2) ...[
+                      Text('zwycięstwo'.toUpperCase()),
+                    ] else ...[
+                      Text('porażka'.toUpperCase()),
+                    ],
                   ] else ...[
-                    Text('porażka'.toUpperCase()),
+                    Text(game.place),
                   ],
-                ] else ...[
-                  Text(game.place),
+                ]),
+            if (alreadyPlayed) ...[
+              SizedBox(height: 20)
+            ] else ...[
+              SizedBox(height: 5),
+              Align(
+                  alignment: Alignment.centerRight, child: Text(game.duration)),
+            ],
+            Row(
+              children: [
+                CircleAvatar(
+                  maxRadius: 15,
+                  backgroundColor: appState.teamsMap[game.team1].color,
+                ),
+                SizedBox(width: 5),
+                Text(game.team1, textScaleFactor: 1.5),
+                if (alreadyPlayed) ...[
+                  Spacer(),
+                  Text(game.score1.toString(), textScaleFactor: 1.5),
                 ],
-              ]),
-          if (alreadyPlayed) ...[
-            SizedBox(height: 20)
-          ] else ...[
+              ],
+            ),
             SizedBox(height: 5),
-            Align(alignment: Alignment.centerRight, child: Text(game.duration)),
+            Row(
+              children: [
+                CircleAvatar(
+                  maxRadius: 15,
+                  backgroundColor: appState.teamsMap[game.team2].color,
+                ),
+                SizedBox(width: 5),
+                Text(game.team2, textScaleFactor: 1.5),
+                if (alreadyPlayed) ...[
+                  Spacer(),
+                  Text(game.score2.toString(), textScaleFactor: 1.5),
+                ],
+              ],
+            ),
           ],
-          Row(
-            children: [
-              CircleAvatar(
-                maxRadius: 15,
-                backgroundColor: appState.teamsMap[game.team1].color,
-              ),
-              SizedBox(width: 5),
-              Text(game.team1, textScaleFactor: 1.5),
-              if (alreadyPlayed) ...[
-                Spacer(),
-                Text(game.score1.toString(), textScaleFactor: 1.5),
-              ],
-            ],
-          ),
-          SizedBox(height: 5),
-          Row(
-            children: [
-              CircleAvatar(
-                maxRadius: 15,
-                backgroundColor: appState.teamsMap[game.team2].color,
-              ),
-              SizedBox(width: 5),
-              Text(game.team2, textScaleFactor: 1.5),
-              if (alreadyPlayed) ...[
-                Spacer(),
-                Text(game.score2.toString(), textScaleFactor: 1.5),
-              ],
-            ],
-          ),
-        ],
+        ),
       ),
     ),
   );

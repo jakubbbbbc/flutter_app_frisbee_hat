@@ -173,12 +173,12 @@ class ApplicationState extends ChangeNotifier {
                   teamPlayers: [_playersList.last]);
             }
           }
-          var sortedKeys = _teamsMap.keys.toList(growable: false)
-            ..sort((k1, k2) => _teamsMap[k1]
-                .teamPlayers
-                .length
-                .compareTo(_teamsMap[k2].teamPlayers.length));
-          print(sortedKeys);
+          // var sortedKeys = _teamsMap.keys.toList(growable: false)
+          //   ..sort((k1, k2) => _teamsMap[k1]
+          //       .teamPlayers
+          //       .length
+          //       .compareTo(_teamsMap[k2].teamPlayers.length));
+          // print(sortedKeys);
           notifyListeners();
         });
 
