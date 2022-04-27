@@ -173,8 +173,11 @@ class ApplicationState extends ChangeNotifier {
                   teamPlayers: [_playersList.last]);
             }
           }
-          var sortedKeys = _teamsMap.keys.toList(growable:false)
-            ..sort((k1, k2) => _teamsMap[k1].teamPlayers.length.compareTo(_teamsMap[k2].teamPlayers.length));
+          var sortedKeys = _teamsMap.keys.toList(growable: false)
+            ..sort((k1, k2) => _teamsMap[k1]
+                .teamPlayers
+                .length
+                .compareTo(_teamsMap[k2].teamPlayers.length));
           print(sortedKeys);
           notifyListeners();
         });
@@ -259,13 +262,18 @@ class ApplicationState extends ChangeNotifier {
       'position': position,
       'bio': bio,
     });
-    // FirebaseFirestore.instance
-    //     .collection('events')
-    //     .doc('gid2')
-    //     .update(<String, dynamic>{
-    //   'score2': 4,
-    // });
-    // notifyListeners(); //czy to potrzebne?
+    notifyListeners();
+  }
+
+  Future<void> updatePlayerBadges(
+      String uid, List<String> badges) async {
+    FirebaseFirestore.instance
+        .collection('players')
+        .doc(uid)
+        .update(<String, dynamic>{
+      'badges': badges,
+    });
+    notifyListeners();
   }
 
   void startLoginFlow() {

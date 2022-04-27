@@ -41,7 +41,7 @@ final eventDays = {
 };
 
 final badgeIcons = {
-  'Organizator': Icons.admin_panel_settings,
+  'Organizator': Icons.badge,
   'Mistrzowska Akcja': Icons.star,
   'Czyścioch': Icons.clean_hands,
 };

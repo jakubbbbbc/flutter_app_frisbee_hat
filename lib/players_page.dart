@@ -4,15 +4,14 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gtk_flutter/navigation_bar.dart';
 
-// import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:gtk_flutter/src/authentication.dart';
 import 'package:gtk_flutter/teams_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'admin_functions.dart';
 import 'src/widgets.dart';
 import 'config.dart';
 
@@ -202,37 +201,51 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Consumer<ApplicationState>(
         builder: (context, appState, _) => Scaffold(
-              appBar: widget.player.loggedIn
-                  ? AppBar(
-                      title: const Text('Zawodnik'),
-                      actions: <Widget>[
-                        IconButton(
-                          onPressed: () async {
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ProfileEditPage(
-                                          player: widget.player,
-                                        )));
-                            setState(() {});
-                          },
-                          color: Colors.white,
-                          // padding: EdgeInsets.only(right: 5),
-                          icon: Icon(Icons.edit),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            showLogoutDialog(context);
-                          },
-                          color: Colors.white,
-                          padding: EdgeInsets.only(right: 5),
-                          icon: Icon(Icons.logout),
-                        ),
-                      ],
-                    )
-                  : AppBar(
-                      title: const Text('Zawodnik'),
+              appBar: AppBar(
+                title: const Text('Zawodnik'),
+                actions: <Widget>[
+                  if (appState.currentPlayer.isAdmin) ...[
+                    IconButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BadgesEditPage(
+                                  player: widget.player,
+                                )));
+                        setState(() {});
+                      },
+                      color: Colors.white,
+                      // padding: EdgeInsets.only(right: 5),
+                      icon: Icon(Icons.admin_panel_settings),
                     ),
+                  ],
+                  if (widget.player.loggedIn) ...[
+                    IconButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ProfileEditPage(
+                                      player: widget.player,
+                                    )));
+                        setState(() {});
+                      },
+                      color: Colors.white,
+                      // padding: EdgeInsets.only(right: 5),
+                      icon: Icon(Icons.edit),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        showLogoutDialog(context);
+                      },
+                      color: Colors.white,
+                      padding: EdgeInsets.only(right: 5),
+                      icon: Icon(Icons.logout),
+                    ),
+                  ],
+                ],
+              ),
               body: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
