@@ -54,11 +54,11 @@ class Team {
     required this.name,
     required this.color,
     required this.teamPlayers,
-    this.numPoints=0,
-    this.numWins=0,
-    this.numDraws=0,
-    this.numLoses=0,
-
+    this.numPoints = 0,
+    this.numWins = 0,
+    this.numDraws = 0,
+    this.numLoses = 0,
+    this.pointDiff = 0,
   });
 
   final String name;
@@ -68,6 +68,32 @@ class Team {
   int numWins;
   int numDraws;
   int numLoses;
+  int pointDiff;
+
+  Future<void> updateScores(List<GeneralEvent> eventList) async {
+    this.numWins = 0;
+    this.numDraws = 0;
+    this.numLoses = 0;
+    this.pointDiff = 0;
+    for (var event in eventList) {
+      if (event is GameEvent) {
+        GameEvent game = event;
+        if ((game.score1 != 0 || game.score2 != 0) &&
+            (this.name == game.team1 || this.name == game.team2)) {
+          int score1 = this.name == game.team1 ? game.score1 : game.score2;
+          int score2 = this.name == game.team1 ? game.score2 : game.score1;
+          this.pointDiff += score1 - score2;
+          if (score1 > score2)
+            this.numWins += 1;
+          else if (score1 == score2)
+            this.numDraws += 1;
+          else
+            this.numLoses += 1;
+        }
+      }
+    }
+    this.numPoints = this.numWins * 3 + this.numDraws;
+  }
 }
 
 class TeamsList extends StatefulWidget {

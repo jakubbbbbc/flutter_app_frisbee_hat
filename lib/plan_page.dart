@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'main.dart';
 
 class GeneralEvent {
+  final String eid;
   final String category;
   final String name;
   final String place;
@@ -16,7 +17,8 @@ class GeneralEvent {
   final DateTime timestamp;
 
   GeneralEvent(
-      {required this.category,
+      {required this.eid,
+      required this.category,
       required this.name,
       required this.place,
       required this.day,
@@ -32,6 +34,7 @@ class GameEvent extends GeneralEvent {
   int score2;
 
   GameEvent({
+    required String eid,
     required String category,
     required String name,
     required String place,
@@ -44,6 +47,7 @@ class GameEvent extends GeneralEvent {
     this.score1 = 0,
     this.score2 = 0,
   }) : super(
+            eid: eid,
             category: category,
             name: name,
             place: place,

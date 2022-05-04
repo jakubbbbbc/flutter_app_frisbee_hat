@@ -173,12 +173,11 @@ class ApplicationState extends ChangeNotifier {
                   teamPlayers: [_playersList.last]);
             }
           }
-          // var sortedKeys = _teamsMap.keys.toList(growable: false)
-          //   ..sort((k1, k2) => _teamsMap[k1]
-          //       .teamPlayers
-          //       .length
-          //       .compareTo(_teamsMap[k2].teamPlayers.length));
-          // print(sortedKeys);
+          // TODO only works when teams are loaded later than events
+          // load game scores to teams info
+          for (Team team in teamsMap.values) {
+            team.updateScores(_eventsList);
+          }
           notifyListeners();
         });
 
@@ -199,6 +198,7 @@ class ApplicationState extends ChangeNotifier {
             if ('mecz' == eCategory) {
               if ('' == document.data()['score1'])
                 _eventsList.add(GameEvent(
+                    eid: document.data()['eid'] as String,
                     category: eCategory,
                     name: document.data()['name'] as String,
                     duration: document.data()['duration'] as String,
@@ -211,6 +211,7 @@ class ApplicationState extends ChangeNotifier {
                     team2: document.data()['team2'] as String));
               else
                 _eventsList.add(GameEvent(
+                    eid: document.data()['eid'] as String,
                     category: eCategory,
                     name: document.data()['name'] as String,
                     duration: document.data()['duration'] as String,
@@ -225,6 +226,7 @@ class ApplicationState extends ChangeNotifier {
                     score2: document.data()['score2']));
             } else
               _eventsList.add(GeneralEvent(
+                eid: document.data()['eid'] as String,
                 category: eCategory,
                 name: document.data()['name'] as String,
                 duration: document.data()['duration'] as String,
@@ -265,13 +267,23 @@ class ApplicationState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updatePlayerBadges(
-      String uid, List<String> badges) async {
+  Future<void> updatePlayerBadges(String uid, List<String> badges) async {
     FirebaseFirestore.instance
         .collection('players')
         .doc(uid)
         .update(<String, dynamic>{
       'badges': badges,
+    });
+    notifyListeners();
+  }
+
+  Future<void> updateGameResults(String gid, int score1, int score2) async {
+    FirebaseFirestore.instance
+        .collection('events')
+        .doc(gid)
+        .update(<String, dynamic>{
+      'score1': score1,
+      'score2': score2,
     });
     notifyListeners();
   }

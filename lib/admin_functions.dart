@@ -75,17 +75,17 @@ class _BadgesEditPageState extends State<BadgesEditPage> {
                                           value: widget.player.badges
                                               .contains(badge),
                                           onChanged: (value) async {
+                                            _isLoading = true;
                                             if (value!)
                                               widget.player.badges.add(badge);
                                             else
                                               widget.player.badges
                                                   .remove(badge);
-                                            _isLoading = true;
                                             await appState.updatePlayerBadges(
                                                 widget.player.uid,
                                                 widget.player.badges);
-                                            _isLoading = false;
                                             setState(() {});
+                                            _isLoading = false;
                                           },
                                         ),
                                       ),
@@ -294,14 +294,17 @@ showEditScoreDialog(
       Navigator.pop(context);
     },
   );
-  Widget continueButton = TextButton(
-    child: Text("Zapisz"),
-    onPressed: () {
-      //TODO implement firebase save and team results update
-      //TODO how to pop context twice? - is it necessary?
-      Navigator.pop(context);
-    },
-  );
+  Widget continueButton = Consumer<ApplicationState>(
+      builder: (context, appState, _) => TextButton(
+            child: Text("Zapisz"),
+            onPressed: () async {
+              await appState.updateGameResults(game.eid, score1, score2);
+              appState.teamsMap[game.team1].updateScores(appState.eventsList);
+              appState.teamsMap[game.team2].updateScores(appState.eventsList);
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+          ));
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
     title: Text("Potwierdzenie zmiany wyniku meczu"),

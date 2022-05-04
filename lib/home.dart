@@ -285,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(height: 10),
                         Header('Tabela'),
-                        displayTable(),
+                        displayTable(appState.teamsMap, appState.eventsList),
                       ],
                     ),
                   ),
@@ -302,7 +302,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-Widget displayTable() {
+Widget displayTable(Map teamsMap, List<GeneralEvent> eventsList) {
+  for (Team team in teamsMap.values) {
+    team.updateScores(eventsList);
+  }
+  int compareTeam(String k1, String k2) {
+    var comparisonResult =
+        teamsMap[k2].numPoints.compareTo(teamsMap[k1].numPoints);
+    if (comparisonResult != 0) {
+      return comparisonResult;
+    }
+    return teamsMap[k2].pointDiff.compareTo(teamsMap[k1].pointDiff);
+  }
+
+  var sortedKeys = teamsMap.keys.toList(growable: false)
+    ..sort(
+        (k1, k2) => compareTeam(k1, k2));
+  // print(sortedKeys);
+
   return Consumer<ApplicationState>(
     builder: (context, appState, _) => Container(
       decoration: BoxDecoration(
@@ -316,20 +333,78 @@ Widget displayTable() {
         children: [
           Row(
             children: [
-              Expanded(flex: 2, child: Text('Lp')),
-              Expanded(flex: 4, child: Text('Drużyna')),
-              for (var val in ['M', 'Z', 'R', 'P'])
-                Expanded(flex: 1, child: Text(val)),
-              Expanded(flex: 2, child: Text('+/-')),
+              Expanded(
+                  flex: 1,
+                  child: Text('Lp',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(
+                  flex: 4,
+                  child: Text('Drużyna',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              for (var val in ['Pkt', 'M', 'Z', 'R', 'P'])
+                Expanded(
+                    flex: 1,
+                    child: Align(
+                        child: Text(val,
+                            style: TextStyle(fontWeight: FontWeight.bold)))),
+              Expanded(
+                  flex: 2,
+                  child: Align(
+                      child: Text('+/-',
+                          style: TextStyle(fontWeight: FontWeight.bold)))),
             ],
           ),
           Divider(
             height: 8,
-            thickness: 1,
+            thickness: 2,
             indent: 0,
             endIndent: 0,
             color: Colors.grey,
           ),
+          for (String name in sortedKeys) ...[
+            Row(
+              children: [
+                Expanded(
+                    flex: 1,
+                    child: Text((sortedKeys.indexOf(name) + 1).toString())),
+                Expanded(flex: 4, child: Text(name)),
+                Expanded(
+                    flex: 1,
+                    child: Align(
+                        child: Text(teamsMap[name].numPoints.toString()))),
+                Expanded(
+                    flex: 1,
+                    child: Align(
+                        child: Text((teamsMap[name].numWins +
+                                teamsMap[name].numDraws +
+                                teamsMap[name].numLoses)
+                            .toString()))),
+                Expanded(
+                    flex: 1,
+                    child:
+                        Align(child: Text(teamsMap[name].numWins.toString()))),
+                Expanded(
+                    flex: 1,
+                    child:
+                        Align(child: Text(teamsMap[name].numDraws.toString()))),
+                Expanded(
+                    flex: 1,
+                    child:
+                        Align(child: Text(teamsMap[name].numLoses.toString()))),
+                Expanded(
+                    flex: 2,
+                    child: Align(
+                        child: Text(teamsMap[name].pointDiff.toString()))),
+              ],
+            ),
+            Divider(
+              height: 8,
+              thickness: 1,
+              indent: 0,
+              endIndent: 0,
+              color: Colors.grey,
+            ),
+          ],
         ],
       ),
     ),
