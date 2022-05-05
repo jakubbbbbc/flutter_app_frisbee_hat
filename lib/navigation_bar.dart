@@ -8,9 +8,8 @@ import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/src/widgets.dart';
 import 'package:gtk_flutter/teams_page.dart';
 import 'package:provider/provider.dart';
-
-import 'config.dart';
-import 'main.dart';
+import 'package:gtk_flutter/config.dart';
+import 'package:gtk_flutter/app_state.dart';
 
 class MyNavigationBarPage extends StatefulWidget {
   const MyNavigationBarPage({Key? key}) : super(key: key);

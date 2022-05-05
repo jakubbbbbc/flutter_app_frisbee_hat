@@ -1,10 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:gtk_flutter/admin_functions.dart';
 import 'package:gtk_flutter/config.dart';
 import 'package:provider/provider.dart';
-
-import 'main.dart';
+import 'package:gtk_flutter/app_state.dart';
 
 class GeneralEvent {
   final String eid;

@@ -1,21 +1,17 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-
 import 'package:flutter/material.dart';
 import 'package:gtk_flutter/navigation_bar.dart';
-
 import 'package:gtk_flutter/src/authentication.dart';
 import 'package:gtk_flutter/teams_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'admin_functions.dart';
-import 'src/widgets.dart';
-import 'config.dart';
-
-import 'main.dart';
+import 'package:gtk_flutter/admin_functions.dart';
+import 'package:gtk_flutter/src/widgets.dart';
+import 'package:gtk_flutter/config.dart';
+import 'package:gtk_flutter/app_state.dart';
 
 class Player {
   Player({

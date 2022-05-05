@@ -4,10 +4,9 @@ import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/src/authentication.dart';
 import 'package:gtk_flutter/src/widgets.dart';
 import 'package:provider/provider.dart';
-
-import 'config.dart';
-import 'main.dart';
-import 'navigation_bar.dart';
+import 'package:gtk_flutter/config.dart';
+import 'package:gtk_flutter/app_state.dart';
+import 'package:gtk_flutter/navigation_bar.dart';
 
 class TeamsPage extends StatefulWidget {
   const TeamsPage({Key? key}) : super(key: key);

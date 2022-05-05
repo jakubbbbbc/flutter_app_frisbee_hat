@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gtk_flutter/config.dart';
 import 'package:gtk_flutter/navigation_bar.dart';
-
-import 'widgets.dart';
+import 'package:gtk_flutter/src/widgets.dart';
 
 enum ApplicationLoginState {
   loggedOut,
@@ -51,17 +51,17 @@ class Authentication extends StatelessWidget {
       case ApplicationLoginState.loggedOut:
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Login page'),
+            title: const Text('Strona logowania'),
           ),
           body: Row(
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 24, bottom: 8),
-                child: StyledButton(
+                child: OutlinedButton(
                   onPressed: () {
                     startLoginFlow();
                   },
-                  child: const Text('RSVP'),
+                  child: const Text('Zaloguj się'),
                 ),
               ),
             ],
@@ -70,28 +70,31 @@ class Authentication extends StatelessWidget {
       case ApplicationLoginState.emailAddress:
         return Scaffold(
             appBar: AppBar(
-              title: const Text('Login page'),
+              title: const Text('Strona logowania'),
             ),
             body: EmailForm(
-                callback: (email) => verifyEmail(email,
-                    (e) => _showErrorDialog(context, 'Invalid email', e))));
+                callback: (email) => verifyEmail(
+                    email,
+                    // (e) => _showErrorDialog(context, 'Błędny email', 'Błędne formatowanie adresu email.'))));
+                    (e) => _showErrorDialog(context, 'Błędny email', e))));
       case ApplicationLoginState.password:
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Login page'),
+            title: const Text('Strona logowania'),
           ),
           body: PasswordForm(
             email: email!,
             login: (email, password) {
               signInWithEmailAndPassword(email, password,
-                  (e) => _showErrorDialog(context, 'Failed to sign in', e));
+                  // (e) => _showErrorDialog(context, 'Nie udało się zalogować', 'Hasło niepoprawne lub użytkownik nie posiada hasła.'))));
+                  (e) => _showErrorDialog(context, 'Nie udało się zalogować', e));
             },
           ),
         );
       case ApplicationLoginState.register:
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Login page'),
+            title: const Text('Strona logowania'),
           ),
           body: RegisterForm(
             email: email!,
@@ -108,7 +111,8 @@ class Authentication extends StatelessWidget {
                   displayName,
                   password,
                   (e) =>
-                      _showErrorDialog(context, 'Failed to create account', e));
+                      // _showErrorDialog(context, 'Failed to create account', e));
+                      _showErrorDialog(context, 'Nie udało się utworzyć konta', e));
             },
           ),
         );
@@ -143,13 +147,13 @@ class Authentication extends StatelessWidget {
             ),
           ),
           actions: <Widget>[
-            StyledButton(
+            OutlinedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text(
+              child: Text(
                 'OK',
-                style: TextStyle(color: Colors.deepPurple),
+                // style: TextStyle(color: themeColors['main']),
               ),
             ),
           ],
@@ -175,8 +179,9 @@ class _EmailFormState extends State<EmailForm> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Header('Sign in with email'),
+        const Header('Zaloguj się za pomocą adresu email'),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Form(
@@ -189,11 +194,11 @@ class _EmailFormState extends State<EmailForm> {
                   child: TextFormField(
                     controller: _controller,
                     decoration: const InputDecoration(
-                      hintText: 'Enter your email',
+                      hintText: 'Wpisz swój email',
                     ),
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Enter your email address to continue';
+                        return 'Wpisz swój email by kontunować';
                       }
                       return null;
                     },
@@ -205,13 +210,13 @@ class _EmailFormState extends State<EmailForm> {
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 16.0, horizontal: 30),
-                      child: StyledButton(
+                      child: OutlinedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             widget.callback(_controller.text);
                           }
                         },
-                        child: const Text('NEXT'),
+                        child: const Text('Dalej'),
                       ),
                     ),
                   ],
@@ -300,12 +305,12 @@ class _RegisterFormState extends State<RegisterForm> {
                   child: TextFormField(
                     controller: _passwordController,
                     decoration: const InputDecoration(
-                      hintText: 'Password',
+                      hintText: 'Hasło',
                     ),
                     obscureText: true,
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Enter your password';
+                        return 'Wpisz swoje hasło';
                       }
                       return null;
                     },
@@ -321,7 +326,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         child: const Text('CANCEL'),
                       ),
                       const SizedBox(width: 16),
-                      StyledButton(
+                      OutlinedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             widget.registerAccount(
@@ -374,7 +379,7 @@ class _PasswordFormState extends State<PasswordForm> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Header('Sign in'),
+        const Header('Zaloguj się'),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Form(
@@ -387,11 +392,11 @@ class _PasswordFormState extends State<PasswordForm> {
                   child: TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(
-                      hintText: 'Enter your email',
+                      hintText: 'Wpisz swój email',
                     ),
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Enter your email address to continue';
+                        return 'Wpisz swój email by kontynuować';
                       }
                       return null;
                     },
@@ -402,12 +407,12 @@ class _PasswordFormState extends State<PasswordForm> {
                   child: TextFormField(
                     controller: _passwordController,
                     decoration: const InputDecoration(
-                      hintText: 'Password',
+                      hintText: 'Hasło',
                     ),
                     obscureText: true,
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Enter your password';
+                        return 'Wpisz swoje hasło';
                       }
                       return null;
                     },
@@ -419,7 +424,7 @@ class _PasswordFormState extends State<PasswordForm> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       const SizedBox(width: 16),
-                      StyledButton(
+                      OutlinedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             widget.login(
@@ -428,7 +433,7 @@ class _PasswordFormState extends State<PasswordForm> {
                             );
                           }
                         },
-                        child: const Text('SIGN IN'),
+                        child: const Text('Zaloguj się'),
                       ),
                       const SizedBox(width: 30),
                     ],
@@ -443,16 +448,16 @@ class _PasswordFormState extends State<PasswordForm> {
   }
 }
 
-showLogoutDialog(BuildContext context){
+showLogoutDialog(BuildContext context) {
   Widget cancelButton = TextButton(
     child: Text("Cofnij"),
-    onPressed:  () {
+    onPressed: () {
       Navigator.pop(context);
     },
   );
   Widget continueButton = TextButton(
     child: Text("Wyloguj"),
-    onPressed:  () {
+    onPressed: () {
       FirebaseAuth.instance.signOut();
       Navigator.popUntil(context, ModalRoute.withName("/"));
     },

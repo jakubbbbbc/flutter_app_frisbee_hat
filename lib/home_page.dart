@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gtk_flutter/main.dart';
+import 'package:gtk_flutter/app_state.dart';
 import 'package:gtk_flutter/plan_page.dart';
 import 'package:gtk_flutter/players_page.dart';
 import 'package:gtk_flutter/src/widgets.dart';
 import 'package:gtk_flutter/teams_page.dart';
 import 'package:provider/provider.dart';
 
-import 'config.dart';
+import 'package:gtk_flutter/config.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
