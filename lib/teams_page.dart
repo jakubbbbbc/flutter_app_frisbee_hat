@@ -152,7 +152,7 @@ class _TeamsListState extends State<TeamsList> {
 }
 
 class TeamPage extends StatefulWidget {
-  TeamPage({Key? key, required this.team, this.subpage = 1}) : super(key: key);
+  TeamPage({Key? key, required this.team, this.subpage = 0}) : super(key: key);
   final Team team;
   int subpage;
 

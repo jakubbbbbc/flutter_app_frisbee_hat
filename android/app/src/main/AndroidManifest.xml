@@ -5,6 +5,10 @@
         android:label="gtk_flutter"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+       <meta-data android:name="com.google.android.geo.API_KEY"
+           android:value="AIzaSyA8M90pS2kSso7DjLTtxW2WSi1L47tGfhk"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
