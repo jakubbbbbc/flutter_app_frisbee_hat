@@ -247,19 +247,22 @@ class ApplicationState extends ChangeNotifier {
 
   Future<void> verifyEmail(
       String email,
-      void Function(FirebaseAuthException e) errorCallback,
+      void Function(Exception e) errorCallback,
       ) async {
     try {
       var methods =
       await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
       if (methods.contains('password')) {
         _loginState = ApplicationLoginState.password;
-      } else {
-        _loginState = ApplicationLoginState.register;
       }
+      else
+        throw Exception('Nie ma takiego adresu email');
+      // else {
+      //   _loginState = ApplicationLoginState.register;
+      // }
       _email = email;
       notifyListeners();
-    } on FirebaseAuthException catch (e) {
+    } on Exception catch (e) {
       errorCallback(e);
     }
   }

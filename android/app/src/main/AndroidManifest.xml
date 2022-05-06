@@ -2,9 +2,9 @@
     package="com.example.gtk_flutter">
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
    <application
-        android:label="gtk_flutter"
+        android:label="HatApp"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
 
        <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="AIzaSyA8M90pS2kSso7DjLTtxW2WSi1L47tGfhk"/>

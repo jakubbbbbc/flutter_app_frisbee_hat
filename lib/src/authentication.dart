@@ -51,17 +51,31 @@ class Authentication extends StatelessWidget {
       case ApplicationLoginState.loggedOut:
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Strona logowania'),
+            title: const Text('Witamy na turnieju!'),
           ),
           body: Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 24, bottom: 8),
-                child: OutlinedButton(
-                  onPressed: () {
-                    startLoginFlow();
-                  },
-                  child: const Text('Zaloguj się'),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        startLoginFlow();
+                      },
+                      child: const Text('Zaloguj się'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        'Aby móc korzystać z pełni mocy aplikacji turniejowej, należy się zalogować przy użyciu emaila podanego przy rejestracji oraz otrzymanego na niego hasła.',
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                          color: themeColors['dark'],
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
             ],
@@ -75,8 +89,9 @@ class Authentication extends StatelessWidget {
             body: EmailForm(
                 callback: (email) => verifyEmail(
                     email,
-                    // (e) => _showErrorDialog(context, 'Błędny email', 'Błędne formatowanie adresu email.'))));
-                    (e) => _showErrorDialog(context, 'Błędny email', e))));
+                    (e) => _showErrorDialog(context, 'Błędny email',
+                        'Błędny adres lub formatowanie.'))));
+      // (e) => _showErrorDialog(context, 'Błędny email', e))));
       case ApplicationLoginState.password:
         return Scaffold(
           appBar: AppBar(
@@ -85,9 +100,12 @@ class Authentication extends StatelessWidget {
           body: PasswordForm(
             email: email!,
             login: (email, password) {
-              signInWithEmailAndPassword(email, password,
-                  // (e) => _showErrorDialog(context, 'Nie udało się zalogować', 'Hasło niepoprawne lub użytkownik nie posiada hasła.'))));
-                  (e) => _showErrorDialog(context, 'Nie udało się zalogować', e));
+              signInWithEmailAndPassword(
+                  email,
+                  password,
+                  (e) => _showErrorDialog(context, 'Nie udało się zalogować',
+                      'Hasło niepoprawne.'));
+              // (e) => _showErrorDialog(context, 'Nie udało się zalogować', e));
             },
           ),
         );
@@ -110,9 +128,11 @@ class Authentication extends StatelessWidget {
                   email,
                   displayName,
                   password,
-                  (e) =>
-                      // _showErrorDialog(context, 'Failed to create account', e));
-                      _showErrorDialog(context, 'Nie udało się utworzyć konta', e));
+                  (e) => _showErrorDialog(
+                      context,
+                      'Nie udało się utworzyć konta',
+                      'Nieznany błąd. Spróbuj jeszsze raz.'));
+              // _showErrorDialog(context, 'Nie udało się utworzyć konta', e));
             },
           ),
         );
@@ -127,7 +147,8 @@ class Authentication extends StatelessWidget {
     }
   }
 
-  void _showErrorDialog(BuildContext context, String title, Exception e) {
+  void _showErrorDialog(BuildContext context, String title, String e) {
+    // void _showErrorDialog(BuildContext context, String title, Exception e) {
     showDialog<void>(
       context: context,
       builder: (context) {
@@ -140,7 +161,8 @@ class Authentication extends StatelessWidget {
             child: ListBody(
               children: <Widget>[
                 Text(
-                  '${(e as dynamic).message}',
+                  e,
+                  // '${(e as dynamic).message}',
                   style: const TextStyle(fontSize: 18),
                 ),
               ],
@@ -378,6 +400,7 @@ class _PasswordFormState extends State<PasswordForm> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Header('Zaloguj się'),
         Padding(
