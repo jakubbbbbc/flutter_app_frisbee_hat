@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:gtk_flutter/config.dart';
 import 'package:gtk_flutter/navigation_bar.dart';
 import 'package:gtk_flutter/src/widgets.dart';
+import 'package:provider/provider.dart';
+
+import '../app_state.dart';
 
 enum ApplicationLoginState {
   loggedOut,
@@ -478,13 +481,15 @@ showLogoutDialog(BuildContext context) {
       Navigator.pop(context);
     },
   );
-  Widget continueButton = TextButton(
-    child: Text("Wyloguj"),
-    onPressed: () {
-      FirebaseAuth.instance.signOut();
-      Navigator.popUntil(context, ModalRoute.withName("/"));
-    },
-  );
+  Widget continueButton = Consumer<ApplicationState>(
+      builder: (context, appState, _) => TextButton(
+            child: Text("Wyloguj"),
+            onPressed: () {
+              // appState.currentPlayer.uid=''; // for home page loading indicator
+              FirebaseAuth.instance.signOut();
+              Navigator.popUntil(context, ModalRoute.withName("/"));
+            },
+          ));
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
     title: Text("Potwierdzenie wylogowania"),

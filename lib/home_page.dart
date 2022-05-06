@@ -62,7 +62,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ApplicationState>(
-      builder: (context, appState, _) => appState.currentPlayer.uid == ''
+      builder: (context, appState, _) => appState
+                  .teamsMap[appState.currentPlayer.hatTeam] ==
+              null
           ? loadingIndicator
           : Scaffold(
               appBar: AppBar(
@@ -316,8 +318,7 @@ Widget displayTable(Map teamsMap, List<GeneralEvent> eventsList) {
   }
 
   var sortedKeys = teamsMap.keys.toList(growable: false)
-    ..sort(
-        (k1, k2) => compareTeam(k1, k2));
+    ..sort((k1, k2) => compareTeam(k1, k2));
   // print(sortedKeys);
 
   return Consumer<ApplicationState>(

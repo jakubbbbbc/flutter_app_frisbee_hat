@@ -46,6 +46,10 @@ class Player {
   final bool isAdmin;
   final List<String> badges;
 
+  void set uid(String uid) {
+    uid = uid;
+  }
+
   Future<Uint8List?> downloadImage(String fname) async {
     // Create a storage reference from our app
     final storageRef =
@@ -196,326 +200,173 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ApplicationState>(
-        builder: (context, appState, _) => Scaffold(
-              appBar: AppBar(
-                title: const Text('Zawodnik'),
-                actions: <Widget>[
-                  if (appState.currentPlayer.isAdmin) ...[
-                    IconButton(
-                      onPressed: () async {
-                        await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BadgesEditPage(
-                                  player: widget.player,
-                                )));
-                        setState(() {});
-                      },
-                      color: Colors.white,
-                      // padding: EdgeInsets.only(right: 5),
-                      icon: Icon(Icons.admin_panel_settings),
-                    ),
+        builder: (context, appState, _) => appState
+                    .teamsMap[appState.currentPlayer.hatTeam] ==
+                null
+            ? loadingIndicator
+            : Scaffold(
+                appBar: AppBar(
+                  title: const Text('Zawodnik'),
+                  actions: <Widget>[
+                    if (appState.currentPlayer.isAdmin) ...[
+                      IconButton(
+                        onPressed: () async {
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => BadgesEditPage(
+                                        player: widget.player,
+                                      )));
+                          setState(() {});
+                        },
+                        color: Colors.white,
+                        // padding: EdgeInsets.only(right: 5),
+                        icon: Icon(Icons.admin_panel_settings),
+                      ),
+                    ],
+                    if (widget.player.loggedIn) ...[
+                      IconButton(
+                        onPressed: () async {
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ProfileEditPage(
+                                        player: widget.player,
+                                      )));
+                          setState(() {});
+                        },
+                        color: Colors.white,
+                        // padding: EdgeInsets.only(right: 5),
+                        icon: Icon(Icons.edit),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showLogoutDialog(context);
+                        },
+                        color: Colors.white,
+                        padding: EdgeInsets.only(right: 5),
+                        icon: Icon(Icons.logout),
+                      ),
+                    ],
                   ],
-                  if (widget.player.loggedIn) ...[
-                    IconButton(
-                      onPressed: () async {
-                        await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ProfileEditPage(
-                                      player: widget.player,
-                                    )));
-                        setState(() {});
-                      },
-                      color: Colors.white,
-                      // padding: EdgeInsets.only(right: 5),
-                      icon: Icon(Icons.edit),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        showLogoutDialog(context);
-                      },
-                      color: Colors.white,
-                      padding: EdgeInsets.only(right: 5),
-                      icon: Icon(Icons.logout),
-                    ),
-                  ],
-                ],
-              ),
-              body: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    // Center(
-                    //   child: ProfilePicture(
-                    //     name: widget.player.name,
-                    //     radius: 31,
-                    //     fontsize: 31,
-                    //     img:
-                    //         'http://bestprofilepix.com/wp-content/uploads/2014/03/sad-and-alone-boys-facebook-profile-pictures.jpg',
-                    //     // role: 'test',
-                    //     // tooltip: true,
-                    //   ),
-                    // ),
-                    CircleAvatar(
-                      backgroundColor:
-                          appState.teamsMap[widget.player.hatTeam].color,
-                      child: widget.player.pic != null
-                          ? SizedBox(
-                              width: 70,
-                              height: 70,
-                              child: ClipOval(
-                                  child: Image.memory(
-                                widget.player.pic!,
-                                fit: BoxFit.cover,
-                              )),
-                            )
-                          : Text(widget.player.name[0] +
-                              widget.player.name.split(' ').last[0]),
-                      minRadius: 40,
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: Text(
-                        widget.player.name,
-                        style: Theme.of(context).textTheme.headline5,
+                ),
+                body: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      // Center(
+                      //   child: ProfilePicture(
+                      //     name: widget.player.name,
+                      //     radius: 31,
+                      //     fontsize: 31,
+                      //     img:
+                      //         'http://bestprofilepix.com/wp-content/uploads/2014/03/sad-and-alone-boys-facebook-profile-pictures.jpg',
+                      //     // role: 'test',
+                      //     // tooltip: true,
+                      //   ),
+                      // ),
+                      CircleAvatar(
+                        backgroundColor:
+                            appState.teamsMap[widget.player.hatTeam].color,
+                        child: widget.player.pic != null
+                            ? SizedBox(
+                                width: 70,
+                                height: 70,
+                                child: ClipOval(
+                                    child: Image.memory(
+                                  widget.player.pic!,
+                                  fit: BoxFit.cover,
+                                )),
+                              )
+                            : Text(widget.player.name[0] +
+                                widget.player.name.split(' ').last[0]),
+                        minRadius: 40,
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: widget.player.nickname != ""
-                          ? Text(
-                              '\"${widget.player.nickname}\"',
-                              style: Theme.of(context).textTheme.headline6,
-                            )
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: TextButton(
-                                onPressed: () {
-                                  widget.subpage = 0;
-                                  setState(() {});
-                                },
-                                child: Text('Informacje')),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: TextButton(
-                                onPressed: () {
-                                  widget.subpage = 1;
-                                  setState(() {});
-                                },
-                                child: Text('Odznaki')),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Stack(children: [
-                      const Divider(
-                        height: 8,
-                        thickness: 1,
-                        indent: 8,
-                        endIndent: 8,
-                        color: Colors.grey,
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: 0 == widget.subpage
-                                  ? CrossAxisAlignment.start
-                                  : CrossAxisAlignment.end,
-                              children: [
-                                FractionallySizedBox(
-                                  widthFactor: 0.5,
-                                  child: 0 == widget.subpage
-                                      ? Divider(
-                                          height: 5,
-                                          thickness: 5,
-                                          indent: 8,
-                                          endIndent: 0,
-                                          color: Colors.grey,
-                                        )
-                                      : Divider(
-                                          height: 5,
-                                          thickness: 5,
-                                          indent: 0,
-                                          endIndent: 8,
-                                          color: Colors.grey,
-                                        ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ]),
-                    if (0 == widget.subpage) ...[
-                      Header('Podstawowe informacje'),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: themeColors['main']!,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: Text(
+                          widget.player.name,
+                          style: Theme.of(context).textTheme.headline5,
                         ),
-                        margin: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Column(
+                      ),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: widget.player.nickname != ""
+                            ? Text(
+                                '\"${widget.player.nickname}\"',
+                                style: Theme.of(context).textTheme.headline6,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
                           children: [
-                            // const SizedBox(height: 8),
-                            TextButton(
-                              onPressed: () async {
-                                appState.currentNavigationBarItem =
-                                    TabItem.teams;
-                                await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => TeamPage(
-                                              team: appState.teamsMap[
-                                                  widget.player.hatTeam],
-                                            )));
-                                appState.currentNavigationBarItem =
-                                    TabItem.players;
-                              },
-                              style: ButtonStyle(
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Colors.black),
-                                padding: MaterialStateProperty.all<EdgeInsets>(
-                                    EdgeInsets.zero),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        right: 10.0, left: 8),
-                                    child: Icon(Icons.people),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(widget.player.hatTeam),
-                                        const Text('drużyna hatowa')
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        right: 8, left: 10),
-                                    child: Column(
-                                      children: [
-                                        const SizedBox(height: 10),
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 15,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            Expanded(
+                              flex: 5,
+                              child: TextButton(
+                                  onPressed: () {
+                                    widget.subpage = 0;
+                                    setState(() {});
+                                  },
+                                  child: Text('Informacje')),
                             ),
-                            if (widget.player.homeTeam != "")
-                              const Divider(
-                                height: 8,
-                                thickness: 1,
-                                indent: 8,
-                                endIndent: 8,
-                                color: Colors.black,
-                              ),
-                            if (widget.player.homeTeam != "")
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        right: 10.0, left: 8),
-                                    child: Icon(Icons.people),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(widget.player.homeTeam),
-                                        const Text('drużyna domowa')
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            if (widget.player.city != "")
-                              const Divider(
-                                height: 8,
-                                thickness: 1,
-                                indent: 8,
-                                endIndent: 8,
-                                color: Colors.black,
-                              ),
-                            if (widget.player.city != "")
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        right: 10.0, left: 8),
-                                    child: Icon(Icons.location_city),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(widget.player.city),
-                                        const Text('miasto')
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            if (widget.player.position != "")
-                              const Divider(
-                                height: 8,
-                                thickness: 1,
-                                indent: 8,
-                                endIndent: 8,
-                                color: Colors.black,
-                              ),
-                            if (widget.player.position != "")
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        right: 10.0, left: 8),
-                                    child: Icon(Icons.directions_run),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(widget.player.position),
-                                        const Text('pozycja na boisku')
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            const SizedBox(height: 8),
+                            Expanded(
+                              flex: 5,
+                              child: TextButton(
+                                  onPressed: () {
+                                    widget.subpage = 1;
+                                    setState(() {});
+                                  },
+                                  child: Text('Odznaki')),
+                            ),
                           ],
                         ),
                       ),
-                      if (widget.player.bio != "") Header('Bio'),
-                      if (widget.player.bio != "")
+                      Stack(children: [
+                        const Divider(
+                          height: 8,
+                          thickness: 1,
+                          indent: 8,
+                          endIndent: 8,
+                          color: Colors.grey,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: 0 == widget.subpage
+                                    ? CrossAxisAlignment.start
+                                    : CrossAxisAlignment.end,
+                                children: [
+                                  FractionallySizedBox(
+                                    widthFactor: 0.5,
+                                    child: 0 == widget.subpage
+                                        ? Divider(
+                                            height: 5,
+                                            thickness: 5,
+                                            indent: 8,
+                                            endIndent: 0,
+                                            color: Colors.grey,
+                                          )
+                                        : Divider(
+                                            height: 5,
+                                            thickness: 5,
+                                            indent: 0,
+                                            endIndent: 8,
+                                            color: Colors.grey,
+                                          ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]),
+                      if (0 == widget.subpage) ...[
+                        Header('Podstawowe informacje'),
                         Container(
                           decoration: BoxDecoration(
                             color: themeColors['main']!,
@@ -524,37 +375,197 @@ class _ProfilePageState extends State<ProfilePage> {
                           margin: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Column(
                             children: [
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  const SizedBox(width: 8),
-                                  Expanded(child: Text(widget.player.bio)),
-                                  const SizedBox(width: 8),
-                                ],
+                              // const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () async {
+                                  appState.currentNavigationBarItem =
+                                      TabItem.teams;
+                                  await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => TeamPage(
+                                                team: appState.teamsMap[
+                                                    widget.player.hatTeam],
+                                              )));
+                                  appState.currentNavigationBarItem =
+                                      TabItem.players;
+                                },
+                                style: ButtonStyle(
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.black),
+                                  padding:
+                                      MaterialStateProperty.all<EdgeInsets>(
+                                          EdgeInsets.zero),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(
+                                          right: 10.0, left: 8),
+                                      child: Icon(Icons.people),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(widget.player.hatTeam),
+                                          const Text('drużyna hatowa')
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.only(
+                                          right: 8, left: 10),
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 10),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 15,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+                              if (widget.player.homeTeam != "")
+                                const Divider(
+                                  height: 8,
+                                  thickness: 1,
+                                  indent: 8,
+                                  endIndent: 8,
+                                  color: Colors.black,
+                                ),
+                              if (widget.player.homeTeam != "")
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(
+                                          right: 10.0, left: 8),
+                                      child: Icon(Icons.people),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(widget.player.homeTeam),
+                                          const Text('drużyna domowa')
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (widget.player.city != "")
+                                const Divider(
+                                  height: 8,
+                                  thickness: 1,
+                                  indent: 8,
+                                  endIndent: 8,
+                                  color: Colors.black,
+                                ),
+                              if (widget.player.city != "")
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(
+                                          right: 10.0, left: 8),
+                                      child: Icon(Icons.location_city),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(widget.player.city),
+                                          const Text('miasto')
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (widget.player.position != "")
+                                const Divider(
+                                  height: 8,
+                                  thickness: 1,
+                                  indent: 8,
+                                  endIndent: 8,
+                                  color: Colors.black,
+                                ),
+                              if (widget.player.position != "")
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(
+                                          right: 10.0, left: 8),
+                                      child: Icon(Icons.directions_run),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(widget.player.position),
+                                          const Text('pozycja na boisku')
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               const SizedBox(height: 8),
                             ],
                           ),
                         ),
+                        if (widget.player.bio != "") Header('Bio'),
+                        if (widget.player.bio != "")
+                          Container(
+                            decoration: BoxDecoration(
+                              color: themeColors['main']!,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            margin:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const SizedBox(width: 8),
+                                    Expanded(child: Text(widget.player.bio)),
+                                    const SizedBox(width: 8),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                            ),
+                          ),
+                      ],
+                      if (1 == widget.subpage) ...[
+                        Header('Zdobyte odznaki'),
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          children: [
+                            for (var badge in widget.player.badges)
+                              BadgeView(badge: badge),
+                          ],
+                        ),
+                      ],
                     ],
-                    if (1 == widget.subpage) ...[
-                      Header('Zdobyte odznaki'),
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        children: [
-                          for (var badge in widget.player.badges)
-                            BadgeView(badge: badge),
-                        ],
-                      ),
-                    ],
-                  ],
-                  // to here.
+                    // to here.
+                  ),
                 ),
-              ),
-              bottomNavigationBar: MyBottomNavigationBar,
-            ));
+                bottomNavigationBar: MyBottomNavigationBar,
+              ));
   }
 }
 
@@ -672,25 +683,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     return 'error';
   }
 
-  // UploadTask uploadString() {
-  //   const String putStringText =
-  //       'This upload has been generated using the putString method! Check the metadata too!';
-  //
-  //   // Create a Reference to the file
-  //   Reference ref = FirebaseStorage.instance
-  //       .ref()
-  //       .child('flutter-tests')
-  //       .child('/put-string-example.txt');
-  //
-  //   // Start upload of putString
-  //   return ref.putString(
-  //     putStringText,
-  //     metadata: SettableMetadata(
-  //       contentLanguage: 'en',
-  //       customMetadata: <String, String>{'example': 'putString'},
-  //     ),
-  //   );
-  // }
   bool _isLoading = false;
 
   @override
